@@ -11,15 +11,26 @@
         <img id="photo-one" src="../assets/00000 Image.jpg" />
       </div>
       <div class="photo-grid-item cascade-items" v-for="n in 228" :key="n">
-        <img class="photo" :src="getImageUrl(n)" />
+        <expandable-image class="photo" :src="getImageUrl(n)" @click="imageLightbox" />
       </div>
     </div>
+
+    <!-- <div class="photo-grid-item cascade-items" v-for="n in 228" :key="n">
+        <img class="photo" :src="getImageUrl(n)" @click="imageLightbox" />
+      </div>
+    </div>-->
   </div>
 </template>
 
 <script>
+import ExpandableImage from "./ExpandableImage";
+
 export default {
   name: "Home",
+  components: { ExpandableImage },
+  data: () => ({
+    imageLightbox: false,
+  }),
   methods: {
     getImageUrl(n) {
       return require("../assets/" + n + " Image.jpg");
@@ -82,17 +93,6 @@ export default {
   grid-template-rows: repeat(auto, auto);
 }
 
-.photo {
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  height: 100%;
-  width: 100%;
-
-  object-fit: cover;
-}
-
 .photo-grid-item {
   position: relative;
 
@@ -117,6 +117,12 @@ export default {
   width: 50%;
 
   object-fit: cover;
+
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
 
 @media (max-width: 650px) {
