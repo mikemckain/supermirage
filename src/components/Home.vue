@@ -128,18 +128,22 @@ export default {
 @media (max-width: 650px) {
   #header {
     top: 0;
+    left: 0;
+    padding: 0;
 
     p {
       margin: 0;
       font-size: 10px;
     }
     #icon {
-      opacity: 0.8;
-      padding-left: 5px;
+      opacity: 1;
+      // padding-left: 5px;
 
       img {
-        height: 16px;
-        width: 16px;
+        height: 12px;
+        width: 12px;
+        padding: 5px;
+        background-color: black;
       }
     }
   }
