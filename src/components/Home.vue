@@ -1,11 +1,16 @@
 <template>
   <div id="home">
-    <h1 id="title">super mirage</h1>
+    <div id="header">
+      <p id="title">super mirage</p>
+      <a id="icon" href="https://twitter.com/michael_mckain" target="_blank">
+        <img src="../assets/icons/twitter.svg" />
+      </a>
+    </div>
     <div class="photo-grid">
       <div class="photo-grid-item">
         <img id="photo-one" src="../assets/00000 Image.jpg" />
       </div>
-      <div class="photo-grid-item cascade-items" v-for="n in 272" :key="n">
+      <div class="photo-grid-item cascade-items" v-for="n in 228" :key="n">
         <img class="photo" :src="getImageUrl(n)" />
       </div>
     </div>
@@ -19,53 +24,55 @@ export default {
     getImageUrl(n) {
       return require("../assets/" + n + " Image.jpg");
     },
+    // getImageUrl() {
+    //   var imageNum = Math.floor(Math.random() * 228);
+    //   return require("../assets/" + imageNum + " Image.jpg");
+    // },
   },
 };
 </script>
 
 <style scoped lang="scss">
-/* @font-face {
-  font-family: "Caledo";
-  src: url("../assets/fonts/Caledo_bold.otf");
-}
-@font-face {
-  font-family: "Half";
-  src: url("../assets/fonts/Half-Regular.otf");
-}
-@font-face {
-  font-family: "Panamera-Bold";
-  src: url("../assets/fonts/Panamera-Bold.otf");
-}
-@font-face {
-  font-family: "Panamera-Regular";
-  src: url("../assets/fonts/Panamera-Regular.otf");
-} */
 @font-face {
   font-family: "Telegraf";
   src: url("../assets/fonts/Telegraf-Bold.otf");
 }
-h1 {
+
+#header {
+  position: fixed;
+  top: 1vw;
+  left: 1vw;
+  z-index: 100;
   font-family: "Telegraf";
-  font-size: 12px;
-  border: 25px solid black;
-  text-align: left;
+  font-size: 14px;
 
-  top: 0;
-  left: 0;
-}
+  p {
+    background-color: black;
+    padding: 5px;
+  }
 
-.cascade-items {
-  @for $i from 1 through 115 {
-    .photo-grid div:nth-child(#{$i}) {
-      animation-delay: #{$i * 0.5}s !important;
+  #icon {
+    float: left;
+    opacity: 0.25;
+
+    &:hover {
+      opacity: 1;
     }
   }
 }
 
+// .cascade-items {
+//   @for $i from 1 through 272 {
+//     .photo-grid div:nth-child(#{$i}) {
+//       animation-delay: #{$i * 0.5}s !important;
+//     }
+//   }
+// }
+
 .photo-grid {
   position: relative;
 
-  border: 25px solid black;
+  border: 5vw solid black;
   box-sizing: border-box;
 
   display: grid;
@@ -104,13 +111,25 @@ h1 {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  border: 40px solid black;
   border-radius: 100%;
 
-  height: 50%;
+  height: 60%;
   width: 50%;
 
   object-fit: cover;
+}
+
+@media (max-width: 650px) {
+  #header {
+    #icon {
+      opacity: 0.8;
+
+      img {
+        height: 16px;
+        width: 16px;
+      }
+    }
+  }
 }
 
 @keyframes fade-in {

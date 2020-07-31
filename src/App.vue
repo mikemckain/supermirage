@@ -19,6 +19,7 @@ export default {
 body,
 html {
   margin: 0;
+  overscroll-behavior: none;
 }
 
 body::-webkit-scrollbar {
