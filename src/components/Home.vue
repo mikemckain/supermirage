@@ -127,14 +127,25 @@ export default {
 
 @media (max-width: 650px) {
   #header {
+    top: 0;
+
+    p {
+      margin: 0;
+    }
     #icon {
       opacity: 0.8;
+      padding-left: 5px;
 
       img {
         height: 16px;
         width: 16px;
       }
     }
+  }
+
+  .photo-grid {
+    border: 0px solid black;
+    grid-gap: 1px;
   }
 }
 
