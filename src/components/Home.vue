@@ -131,7 +131,7 @@ export default {
 
     p {
       margin: 0;
-      font-size: 12px;
+      font-size: 10px;
     }
     #icon {
       opacity: 0.8;
@@ -148,6 +148,12 @@ export default {
     border: 0px solid black;
     grid-gap: 1px;
   }
+
+  #photo-one {
+
+
+  height: 45%;
+  width: 35%;
 }
 
 @keyframes fade-in {
