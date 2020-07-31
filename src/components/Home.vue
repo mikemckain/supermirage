@@ -131,6 +131,7 @@ export default {
 
     p {
       margin: 0;
+      font-size: 12px;
     }
     #icon {
       opacity: 0.8;
