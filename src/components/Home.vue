@@ -150,10 +150,9 @@ export default {
   }
 
   #photo-one {
-
-
-  height: 45%;
-  width: 35%;
+    height: 45%;
+    width: 35%;
+  }
 }
 
 @keyframes fade-in {
