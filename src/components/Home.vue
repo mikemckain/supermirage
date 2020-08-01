@@ -6,19 +6,17 @@
         <img src="../assets/icons/twitter.svg" />
       </a>
     </div>
-    <div class="photo-grid">
+    <div class="photo-grid" :class="{ hideBG: largeImage }">
       <div class="photo-grid-item">
         <img id="photo-one" src="../assets/00000 Image.jpg" />
       </div>
       <div class="photo-grid-item cascade-items" v-for="n in 228" :key="n">
-        <expandable-image class="photo" :src="getImageUrl(n)" @click="imageLightbox" />
+        <expandable-image class="photo" :src="getImageUrl(n)" @click.native="lightbox(n)" />
       </div>
     </div>
-
-    <!-- <div class="photo-grid-item cascade-items" v-for="n in 228" :key="n">
-        <img class="photo" :src="getImageUrl(n)" @click="imageLightbox" />
-      </div>
-    </div>-->
+    <div v-show="largeImage" id="large-image-wrapper" @click="largeImage = !largeImage">
+      <img id="large-image" :src="getLargeImageUrl(currentImage)" />
+    </div>
   </div>
 </template>
 
@@ -29,16 +27,25 @@ export default {
   name: "Home",
   components: { ExpandableImage },
   data: () => ({
-    imageLightbox: false,
+    largeImage: false,
+    currentImage: 2,
   }),
   methods: {
     getImageUrl(n) {
       return require("../assets/" + n + " Image.jpg");
     },
+    getLargeImageUrl(currentImage) {
+      console.log(currentImage);
+      return require("../assets/" + currentImage + " Image.jpg");
+    },
     // getImageUrl() {
     //   var imageNum = Math.floor(Math.random() * 228);
     //   return require("../assets/" + imageNum + " Image.jpg");
     // },
+    lightbox(n) {
+      this.currentImage = n;
+      this.largeImage = !this.largeImage;
+    },
   },
 };
 </script>
@@ -72,6 +79,27 @@ export default {
   }
 }
 
+#large-image-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#large-image {
+  width: auto;
+  height: 90%;
+  z-index: 300;
+}
+
+.hideBG {
+  opacity: 0.05;
+}
+
 // .cascade-items {
 //   @for $i from 1 through 272 {
 //     .photo-grid div:nth-child(#{$i}) {
@@ -96,8 +124,8 @@ export default {
 .photo-grid-item {
   position: relative;
 
-  -webkit-animation: fade-in 1s ease-out 0.3s both;
-  animation: fade-in 1s ease-out 0.3s both;
+  // -webkit-animation: fade-in 0.2s ease-out 0.3s both;
+  // animation: fade-in 0.2s ease-out 0.3s both;
 }
 
 .photo-grid-item::before {
@@ -156,6 +184,11 @@ export default {
   #photo-one {
     height: 45%;
     width: 35%;
+  }
+
+  #large-image {
+    height: auto;
+    width: 90%;
   }
 }
 

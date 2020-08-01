@@ -1,5 +1,5 @@
 <template>
-  <img v-bind="$attrs" :class="{ expanded }" @click="expanded = !expanded" />
+  <img v-bind="$attrs" :class="{ expanded }" />
 </template>
 
 <script>
@@ -23,17 +23,5 @@ export default {
   width: 100%;
 
   object-fit: cover;
-}
-
-.expanded {
-  z-index: 500;
-  position: absolute;
-  transform-origin: center;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  height: 100%;
-  width: auto;
-  //   opacity: 0.5;
 }
 </style>
