@@ -97,7 +97,7 @@ export default {
 }
 
 .hideBG {
-  opacity: 0.05;
+  opacity: 0.5;
 }
 
 // .cascade-items {
@@ -123,6 +123,11 @@ export default {
 
 .photo-grid-item {
   position: relative;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 
   // -webkit-animation: fade-in 0.2s ease-out 0.3s both;
   // animation: fade-in 0.2s ease-out 0.3s both;
