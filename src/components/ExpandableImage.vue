@@ -1,5 +1,8 @@
 <template>
-  <img v-bind="$attrs" :class="{ expanded }" />
+  <div>
+    <img v-bind="$attrs" :class="{ expanded }" />
+    <video v-bind="$attrs" :class="{ expanded }" autoplay loop></video>
+  </div>
 </template>
 
 <script>
@@ -15,6 +18,19 @@ export default {
 
 <style scoped lang="scss">
 .photo {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  height: 100%;
+  width: 100%;
+
+  object-fit: cover;
+
+  // cursor: pointer;
+}
+
+.video {
   position: absolute;
   top: 0;
   left: 0;
