@@ -8,21 +8,21 @@
 
       <img id="shuffle" src="../assets/icons/spiral.svg" @click="shuffleCollection()" />
     </div>
-    <!-- <div class="photo-grid" :class="{ hideBG: largeImage }">
+    <div class="photo-grid" :class="{ hideBG: largeImage }">
       <div class="photo-grid-item photo-grid-item-one">
         <img id="photo-one" src="../assets/00000 Image.jpg" />
-    </div>-->
-    <virtual-list
-      class="photo-grid"
-      ref="vlist"
-      :data-key="'index'"
-      :data-sources="collection"
-      :data-component="expandableItem"
-    />
+      </div>
+      <!-- <virtual-list
+        class="photo-grid-item cascade-items"
+        ref="vlist"
+        style="height: 100%; overflow-y: auto;"
+        :data-key="'index'"
+        :data-sources="collection"
+        :data-component="expandableItem"
+      />-->
 
-    <!-- <div class="photo-grid-item cascade-items" v-for="index in collection" :key="index">
+      <div class="photo-grid-item cascade-items" v-for="index in collection" :key="index">
         <transition name="fade">
-          <expandable-item
           <expandable-video
             class="video"
             v-if="index <= NUM_VIDEOS"
@@ -35,27 +35,27 @@
             :src="imageUrl(index)"
             @click.native="lightbox(index)"
           />
-
         </transition>
-    </div>-->
+      </div>
+    </div>
+    <div v-show="largeImage" id="large-image-wrapper" @click="largeImage = !largeImage">
+      <img id="large-image" :src="getMediaUrl(currentImage)" />
+    </div>
   </div>
 </template>
 
 <script>
-// import ExpandableImage from "./ExpandableImage";
-// import ExpandableVideo from "./ExpandableVideo";
-
-import ExpandableItem from "./ExpandableItem";
-import VirtualList from "vue-virtual-scroll-list";
+import ExpandableImage from "./ExpandableImage";
+import ExpandableVideo from "./ExpandableVideo";
 
 export default {
   name: "Home",
-  components: { "virtual-list": VirtualList },
   data() {
     return {
-      expandableItem: ExpandableItem,
-      collection: [],
       largeImage: false,
+      currentImage: 2,
+      collection: [],
+      NUM_VIDEOS: 20,
     };
   },
   methods: {
@@ -79,18 +79,21 @@ export default {
       this.collection = [];
       this.collection = collection;
     },
-
-    imageUrl(index) {
-      return require("../assets/" + index + " Image.jpg");
+    getMediaUrl(index) {
+      if (index <= this.NUM_VIDEOS) return "../assets/" + index + " Video.mp4";
+      else return "../assets/" + index + " Image.jpg";
     },
 
-    // getImageUrl() {
-    //   var imageNum = Math.floor(Math.random() * 228);
-    //   return require("../assets/" + imageNum + " Image.jpg");
-    // },
+    imageUrl(index) {
+      return "../assets/" + index + " Image.jpg";
+    },
+    lightbox(index) {
+      this.currentImage = index;
+      this.largeImage = !this.largeImage;
+    },
   },
   beforeMount() {
-    for (var i = 1; i <= 224; i++) this.collection.push({ index: i });
+    for (var i = 1; i <= 224; i++) this.collection.push({ i });
     this.shuffleCollection();
   },
 };
@@ -157,23 +160,23 @@ export default {
   opacity: 0;
 }
 
-// #large-image-wrapper {
-//   position: fixed;
-//   top: 0;
-//   left: 0;
-//   width: 100%;
-//   height: 100%;
-//   display: flex;
-//   justify-content: center;
-//   align-items: center;
-//   cursor: url("../assets/icons/cursor3.png"), pointer;
-// }
+#large-image-wrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: url("../assets/icons/cursor3.png"), pointer;
+}
 
-// #large-image {
-//   width: auto;
-//   height: 90%;
-//   z-index: 300;
-// }
+#large-image {
+  width: auto;
+  height: 90%;
+  z-index: 300;
+}
 
 .hideBG {
   opacity: 0.35;
@@ -192,24 +195,24 @@ export default {
   grid-template-rows: repeat(auto, auto);
 }
 
-// .photo-grid-item {
-//   position: relative;
-//   user-select: none;
-//   -moz-user-select: none;
-//   -webkit-user-drag: none;
-//   -webkit-user-select: none;
-//   -ms-user-select: none;
-//   cursor: url("../assets/icons/cursor2.png"), pointer;
+.photo-grid-item {
+  position: relative;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  cursor: url("../assets/icons/cursor2.png"), pointer;
 
-//   // -webkit-animation: fade-in 0.2s ease-out 0.3s both;
-//   // animation: fade-in 0.2s ease-out 0.3s both;
-// }
+  // -webkit-animation: fade-in 0.2s ease-out 0.3s both;
+  // animation: fade-in 0.2s ease-out 0.3s both;
+}
 
-// .photo-grid-item::before {
-//   content: "";
-//   display: block;
-//   padding-top: 100%;
-// }
+.photo-grid-item::before {
+  content: "";
+  display: block;
+  padding-top: 100%;
+}
 
 #photo-one {
   position: absolute;
