@@ -3,18 +3,14 @@
 </template>
 
 <script>
-export default {};
+export default {
+  data() {
+    return {
+      expanded: false,
+    };
+  },
+};
 </script>
 
 <style scoped lang="scss">
-.video {
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  height: 100%;
-  width: 100%;
-
-  object-fit: cover;
-}
 </style>

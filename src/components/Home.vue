@@ -12,30 +12,20 @@
       <div class="photo-grid-item photo-grid-item-one">
         <img id="photo-one" src="../assets/00000 Image.jpg" />
       </div>
-      <!-- <virtual-list
-        class="photo-grid-item cascade-items"
-        ref="vlist"
-        style="height: 100%; overflow-y: auto;"
-        :data-key="'index'"
-        :data-sources="collection"
-        :data-component="expandableItem"
-      />-->
 
       <div class="photo-grid-item cascade-items" v-for="index in collection" :key="index">
-        <transition name="fade">
-          <expandable-video
-            class="video"
-            v-if="index <= NUM_VIDEOS"
-            :src="getMediaUrl(index)"
-            @click.native="lightbox(index)"
-          />
-          <expandable-image
-            class="photo"
-            v-else
-            :src="imageUrl(index)"
-            @click.native="lightbox(index)"
-          />
-        </transition>
+        <expandable-video
+          class="video"
+          v-if="index <= NUM_VIDEOS"
+          :src="getMediaUrl(index)"
+          @click.native="lightbox(index)"
+        />
+        <expandable-image
+          class="photo"
+          v-else
+          :src="getMediaUrl(index)"
+          @click.native="lightbox(index)"
+        />
       </div>
     </div>
     <div v-show="largeImage" id="large-image-wrapper" @click="largeImage = !largeImage">
@@ -57,6 +47,10 @@ export default {
       collection: [],
       NUM_VIDEOS: 20,
     };
+  },
+  components: {
+    ExpandableImage,
+    ExpandableVideo,
   },
   methods: {
     shuffleCollection() {
@@ -80,12 +74,9 @@ export default {
       this.collection = collection;
     },
     getMediaUrl(index) {
-      if (index <= this.NUM_VIDEOS) return "../assets/" + index + " Video.mp4";
-      else return "../assets/" + index + " Image.jpg";
-    },
-
-    imageUrl(index) {
-      return "../assets/" + index + " Image.jpg";
+      if (index <= this.NUM_VIDEOS)
+        return require("../assets/" + index + " Video.mp4");
+      else return require("../assets/" + index + " Image.jpg");
     },
     lightbox(index) {
       this.currentImage = index;
@@ -93,7 +84,7 @@ export default {
     },
   },
   beforeMount() {
-    for (var i = 1; i <= 224; i++) this.collection.push({ i });
+    for (var i = 1; i <= 224; i++) this.collection.push(i);
     this.shuffleCollection();
   },
 };
@@ -235,6 +226,30 @@ export default {
 
 .photo-grid-item-one {
   cursor: url("../assets/icons/cursor1.png"), pointer !important;
+}
+
+.photo {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  height: 100%;
+  width: 100%;
+
+  object-fit: cover;
+
+  // cursor: pointer;
+}
+
+.video {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  height: 100%;
+  width: 100%;
+
+  object-fit: cover;
 }
 
 @media (max-width: 650px) {
