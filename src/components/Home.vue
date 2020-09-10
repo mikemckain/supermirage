@@ -5,57 +5,45 @@
       <a id="social" href="https://twitter.com/michael_mckain" target="_blank">
         <img src="../assets/icons/twitter.svg" />
       </a>
-
-      <img id="shuffle" src="../assets/icons/spiral.svg" @click="shuffleCollection()" />
+      <img id="shuffle" src="../assets/icons/spiral.svg" @click="shuffleItems()" />
     </div>
-    <div class="photo-grid" :class="{ hideBG: largeImage }">
+    <div class="photo-grid">
       <div class="photo-grid-item photo-grid-item-one">
         <img id="photo-one" src="../assets/00000 Image.jpg" />
       </div>
-
-      <div class="photo-grid-item cascade-items" v-for="index in collection" :key="index">
-        <expandable-video
-          class="video"
-          v-if="index <= NUM_VIDEOS"
-          :src="getMediaUrl(index)"
-          @click.native="lightbox(index)"
-        />
-        <expandable-image
-          class="photo"
-          v-else
-          :src="getMediaUrl(index)"
-          @click.native="lightbox(index)"
-        />
+      <div class="photo-grid-item cascade-items" v-for="item in items" :key="item">
+        <!-- <expandable-video class="video" v-if="item <= NUM_VIDEOS" :src="getMediaUrl(item)" /> -->
+        <Item class="photo" :src="item.url" :item="item" />
       </div>
     </div>
-    <div v-show="largeImage" id="large-image-wrapper" @click="largeImage = !largeImage">
-      <img id="large-image" :src="getMediaUrl(currentImage)" />
-    </div>
+    <!-- <div v-show="largeImage" id="large-image-wrapper" @click="largeImage = !largeImage">
+      <img id="large-image" :src="item.url" />
+    </div>-->
   </div>
 </template>
 
 <script>
-import ExpandableImage from "./ExpandableImage";
-import ExpandableVideo from "./ExpandableVideo";
+import Item from "./Item";
+// import ExpandableVideo from "./ExpandableVideo";
 
 export default {
   name: "Home",
   data() {
     return {
-      largeImage: false,
-      currentImage: 2,
-      collection: [],
-      NUM_VIDEOS: 20,
+      // largeImage: false,
+      // currentImage: 2,
+      items: [],
+      item: {},
+      // NUM_VIDEOS: 26,
     };
   },
   components: {
-    ExpandableImage,
-    ExpandableVideo,
+    Item,
   },
   methods: {
-    shuffleCollection() {
-      var collection = this.collection;
-      var m = collection.length,
+    shuffleItems() {
+      var items = this.items;
+      var m = items.length,
         t,
         i;
 
@@ -65,27 +53,46 @@ export default {
         i = Math.floor(Math.random() * m--);
 
         // And swap it with the current element.
-        t = collection[m];
-        collection[m] = collection[i];
-        collection[i] = t;
+        t = items[m];
+        items[m] = items[i];
+        items[i] = t;
       }
 
-      this.collection = [];
-      this.collection = collection;
+      this.items = [];
+      this.items = items;
     },
-    getMediaUrl(index) {
-      if (index <= this.NUM_VIDEOS)
-        return require("../assets/" + index + " Video.mp4");
-      else return require("../assets/" + index + " Image.jpg");
-    },
-    lightbox(index) {
-      this.currentImage = index;
-      this.largeImage = !this.largeImage;
-    },
+    // getMediaUrl() {
+    //   console.log(this.items.url);
+    //   // return this.items[].url;
+    // },
+    // lightbox(item) {
+    //   this.currentImage = item;
+    //   // this.largeImage = !this.largeImage;
+    // },
   },
-  beforeMount() {
-    for (var i = 1; i <= 224; i++) this.collection.push(i);
-    this.shuffleCollection();
+  async beforeMount() {
+    // for (var i = 1; i <= 231; i++) this.items.push(i);
+
+    const response = await fetch("https://slate.host/api/v1/get", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        // NOTE: your API key
+        Authorization: "Basic SLAeedf8c8e-4179-4a55-8b31-82dc67f76310TE",
+      },
+      body: JSON.stringify({
+        data: {
+          // NOTE: optional, if you want your private slates too.
+          private: false,
+        },
+      }),
+    });
+    const json = await response.json();
+    console.log(json);
+
+    this.items = json.slates[0].data.objects;
+    // console.log(this.collection.item.url);
+    this.shuffleItems();
   },
 };
 </script>
@@ -123,7 +130,7 @@ export default {
   }
 
   img {
-    opacity: 0.25;
+    opacity: 0.5;
 
     cursor: url("../assets/icons/cursor2.png"), pointer;
     &:hover {
@@ -149,24 +156,6 @@ export default {
 }
 .fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
-}
-
-#large-image-wrapper {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: url("../assets/icons/cursor3.png"), pointer;
-}
-
-#large-image {
-  width: auto;
-  height: 90%;
-  z-index: 300;
 }
 
 .hideBG {

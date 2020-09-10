@@ -1,5 +1,14 @@
 <template>
-  <video v-bind="$attrs" :class="{ expanded }" autoplay loop></video>
+  <video
+    ref="video"
+    @mouseenter="toggleAudio"
+    @mouseleave="toggleAudio"
+    v-bind="$attrs"
+    :class="{ expanded }"
+    autoplay
+    loop
+    muted
+  ></video>
 </template>
 
 <script>
@@ -8,6 +17,12 @@ export default {
     return {
       expanded: false,
     };
+  },
+  methods: {
+    toggleAudio() {
+      var vid = this.$refs.video;
+      vid.muted = !vid.muted;
+    },
   },
 };
 </script>

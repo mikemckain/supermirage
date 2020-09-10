@@ -1,13 +1,5 @@
 <template>
   <div @click.native="this.largeImage = !this.largeImage">
-    <video
-      class="video"
-      v-if="index <= NUM_VIDEOS"
-      v-bind="$attrs"
-      :class="{ expanded }"
-      autoplay
-      loop
-    ></video>
     <img class="photo" v-else v-bind="$attrs" :class="{ expanded }" />
 
     <div v-show="largeImage" id="large-image-wrapper" @click="largeImage = !largeImage">
@@ -67,3 +59,21 @@ export default {
   object-fit: cover;
 }
 </style>
+
+<template></template>
+
+<script>
+export default {
+  data() {
+    return {
+      expanded: false,
+    };
+  },
+  methods: {
+    toggleAudio() {
+      var vid = this.$refs.video;
+      vid.muted = !vid.muted;
+    },
+  },
+};
+</script>
