@@ -7,15 +7,27 @@
       @mouseenter="toggleAudio"
       @mouseleave="toggleAudio"
       v-bind="$attrs"
+      :src="item.url"
       :class="{ expanded }"
       loop
       autoplay
       muted
     ></video>
 
-    <img @click="lightbox()" class="photo" v-else v-bind="$attrs" :class="{ expanded }" />
+    <img
+      @click="lightbox()"
+      class="photo"
+      :src="item.url"
+      v-else
+      v-bind="$attrs"
+      :class="{ expanded }"
+    />
 
-    <div v-show="largeImage" id="large-image-wrapper" @click="largeImage = !largeImage">
+    <div
+      v-if="largeImage"
+      :class="['large-image-wrapper', {setFixed: setFixed} ]"
+      @click="largeImage = !largeImage"
+    >
       <img id="large-image" :src="item.url" />
     </div>
   </div>
@@ -28,6 +40,7 @@ export default {
       expanded: false,
       largeImage: false,
       videoItem: false,
+      setFixed: false,
     };
   },
   props: {
@@ -48,6 +61,9 @@ export default {
     } else {
       this.videoItem = false;
     }
+    setTimeout(() => {
+      this.setFixed = true;
+    }, 500);
   },
 };
 </script>
@@ -74,9 +90,9 @@ export default {
   object-fit: cover;
 }
 
-#large-image-wrapper {
+.large-image-wrapper {
+  position: absolute;
   z-index: 200;
-  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -86,6 +102,11 @@ export default {
   align-items: center;
   background-color: rgba(0, 0, 0, 0.5);
   cursor: url("../assets/icons/cursor3.png"), pointer;
+}
+
+.setFixed {
+  position: fixed;
+  z-index: 200;
 }
 
 #large-image {

@@ -5,14 +5,23 @@
       <a id="social" href="https://twitter.com/michael_mckain" target="_blank">
         <img src="../assets/icons/twitter.svg" />
       </a>
-      <img id="shuffle" src="../assets/icons/spiral.svg" @click="shuffleItems()" />
-    </div>
-    <div class="photo-grid">
-      <div class="photo-grid-item photo-grid-item-one">
-        <img id="photo-one" src="../assets/00000 Image.jpg" />
+      <div id="shuffle">
+        <p class="shuffle-text" v-show="shuffleText">shuffle grid</p>
+        <img
+          class="shuffle-icon"
+          @mouseenter="showShuffleText"
+          @mouseleave="showShuffleText"
+          src="../assets/icons/spiral.svg"
+          @click="shuffleItems()"
+        />
       </div>
-      <div class="photo-grid-item cascade-items" v-for="item in items" :key="item">
-        <Item :src="item.url" :item="item" />
+    </div>
+    <div class="grid cascade-items">
+      <div class="item item-one">
+        <img id="item-one" src="../assets/00000 Image.jpg" />
+      </div>
+      <div class="item" v-for="item in items" :key="item.url">
+        <Item :item="item" />
       </div>
     </div>
   </div>
@@ -27,6 +36,7 @@ export default {
     return {
       items: [],
       item: {},
+      shuffleText: false,
     };
   },
   components: {
@@ -53,27 +63,46 @@ export default {
       this.items = [];
       this.items = items;
     },
+    showShuffleText() {
+      this.shuffleText = !this.shuffleText;
+    },
   },
   async beforeMount() {
     //slate API call
-    const response = await fetch("https://slate.host/api/v1/get", {
+    const response = await fetch("https://slate.host/api/v1/get-slate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         // NOTE: your API key
-        Authorization: "Basic SLAeedf8c8e-4179-4a55-8b31-82dc67f76310TE",
+        Authorization: "Basic SLAd2700d52-1e9a-4f18-9ad7-dfb046f3b603TE",
       },
       body: JSON.stringify({
         data: {
-          // NOTE: optional, if you want your private slates too.
-          private: false,
+          // NOTE: your slate ID
+          id: "f3597efa-42ee-4d88-a12a-05e8e8cde21d",
         },
       }),
     });
     const json = await response.json();
     console.log(json);
+    // const response = await fetch("https://slate.host/api/v1/get", {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     // NOTE: your API key
+    //     Authorization: "Basic SLAeedf8c8e-4179-4a55-8b31-82dc67f76310TE",
+    //   },
+    //   body: JSON.stringify({
+    //     data: {
+    //       // NOTE: optional, if you want your private slates too.
+    //       private: false,
+    //     },
+    //   }),
+    // });
+    // const json = await response.json();
+    // console.log(json);
 
-    this.items = json.slates[0].data.objects;
+    this.items = json.slate.data.objects;
     this.shuffleItems();
   },
 };
@@ -109,15 +138,11 @@ export default {
 
   #social {
     float: left;
-  }
-
-  img {
     opacity: 0.5;
-
-    cursor: url("../assets/icons/cursor2.png"), pointer;
     &:hover {
       opacity: 1;
     }
+    cursor: url("../assets/icons/cursor2.png"), pointer;
   }
 
   #shuffle {
@@ -125,22 +150,22 @@ export default {
     top: 1vw;
     right: 1vw;
     float: right;
+    display: flex;
+    height: 50px;
 
-    &:hover {
-      animation: spin 2s linear infinite;
+    .shuffle-icon {
+      opacity: 0.5;
+      cursor: url("../assets/icons/cursor2.png"), pointer;
+
+      &:hover {
+        animation: spin 2s linear infinite;
+        opacity: 1;
+      }
     }
   }
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s;
-}
-.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
-  opacity: 0;
-}
-
-.photo-grid {
+.grid {
   position: relative;
 
   border: 5vw solid black;
@@ -153,7 +178,7 @@ export default {
   grid-template-rows: repeat(auto, auto);
 }
 
-.photo-grid-item {
+.item {
   position: relative;
   user-select: none;
   -moz-user-select: none;
@@ -162,17 +187,17 @@ export default {
   -ms-user-select: none;
   cursor: url("../assets/icons/cursor2.png"), pointer;
 
-  -webkit-animation: fade-in 0.2s ease-out 0.3s both;
-  animation: fade-in 0.2s ease-out 0.3s both;
+  // -webkit-animation: fade-in 0.5s ease-in 0.3s both;
+  // animation: fade-in 0.5s ease-in 0.3s both;
 }
 
-.photo-grid-item::before {
+.item::before {
   content: "";
   display: block;
   padding-top: 100%;
 }
 
-#photo-one {
+#item-one {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -191,8 +216,16 @@ export default {
   -ms-user-select: none;
 }
 
-.photo-grid-item-one {
+.item-one {
   cursor: url("../assets/icons/cursor1.png"), pointer !important;
+}
+
+.cascade-items {
+  @for $i from 1 through 15 {
+    :nth-child(#{$i}n) {
+      animation-delay: #{$i * 0.15}s !important;
+    }
+  }
 }
 
 //Mobile
@@ -216,12 +249,12 @@ export default {
     }
   }
 
-  .photo-grid {
+  .grid {
     border: 0px solid black;
     grid-gap: 1px;
   }
 
-  #photo-one {
+  #item-one {
     height: 45%;
     width: 35%;
   }
@@ -236,7 +269,7 @@ export default {
 @keyframes fade-in {
   0% {
     -webkit-transform: translateY(5px);
-    transform: translateY(50px);
+    transform: translateY(15px);
     opacity: 0;
   }
   100% {
