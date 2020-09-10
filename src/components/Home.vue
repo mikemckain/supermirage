@@ -12,29 +12,21 @@
         <img id="photo-one" src="../assets/00000 Image.jpg" />
       </div>
       <div class="photo-grid-item cascade-items" v-for="item in items" :key="item">
-        <!-- <expandable-video class="video" v-if="item <= NUM_VIDEOS" :src="getMediaUrl(item)" /> -->
-        <Item class="photo" :src="item.url" :item="item" />
+        <Item :src="item.url" :item="item" />
       </div>
     </div>
-    <!-- <div v-show="largeImage" id="large-image-wrapper" @click="largeImage = !largeImage">
-      <img id="large-image" :src="item.url" />
-    </div>-->
   </div>
 </template>
 
 <script>
 import Item from "./Item";
-// import ExpandableVideo from "./ExpandableVideo";
 
 export default {
   name: "Home",
   data() {
     return {
-      // largeImage: false,
-      // currentImage: 2,
       items: [],
       item: {},
-      // NUM_VIDEOS: 26,
     };
   },
   components: {
@@ -61,18 +53,9 @@ export default {
       this.items = [];
       this.items = items;
     },
-    // getMediaUrl() {
-    //   console.log(this.items.url);
-    //   // return this.items[].url;
-    // },
-    // lightbox(item) {
-    //   this.currentImage = item;
-    //   // this.largeImage = !this.largeImage;
-    // },
   },
   async beforeMount() {
-    // for (var i = 1; i <= 231; i++) this.items.push(i);
-
+    //slate API call
     const response = await fetch("https://slate.host/api/v1/get", {
       method: "POST",
       headers: {
@@ -91,7 +74,6 @@ export default {
     console.log(json);
 
     this.items = json.slates[0].data.objects;
-    // console.log(this.collection.item.url);
     this.shuffleItems();
   },
 };
@@ -158,10 +140,6 @@ export default {
   opacity: 0;
 }
 
-.hideBG {
-  opacity: 0.35;
-}
-
 .photo-grid {
   position: relative;
 
@@ -184,8 +162,8 @@ export default {
   -ms-user-select: none;
   cursor: url("../assets/icons/cursor2.png"), pointer;
 
-  // -webkit-animation: fade-in 0.2s ease-out 0.3s both;
-  // animation: fade-in 0.2s ease-out 0.3s both;
+  -webkit-animation: fade-in 0.2s ease-out 0.3s both;
+  animation: fade-in 0.2s ease-out 0.3s both;
 }
 
 .photo-grid-item::before {
@@ -217,30 +195,7 @@ export default {
   cursor: url("../assets/icons/cursor1.png"), pointer !important;
 }
 
-.photo {
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  height: 100%;
-  width: 100%;
-
-  object-fit: cover;
-
-  // cursor: pointer;
-}
-
-.video {
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  height: 100%;
-  width: 100%;
-
-  object-fit: cover;
-}
-
+//Mobile
 @media (max-width: 650px) {
   #header {
     top: 0;
@@ -277,6 +232,7 @@ export default {
   }
 }
 
+//Transition In
 @keyframes fade-in {
   0% {
     -webkit-transform: translateY(5px);
@@ -302,6 +258,7 @@ export default {
   }
 }
 
+//Shuffle Button
 @-moz-keyframes spin {
   100% {
     -moz-transform: rotate(360deg);

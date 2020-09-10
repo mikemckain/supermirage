@@ -19,12 +19,10 @@
       <img id="large-image" :src="item.url" />
     </div>
   </div>
-  <!-- v-if="index <= NUM_VIDEOS" :src="item.url"-->
 </template>
 
 <script>
 export default {
-  //   inheritAttrs: false,
   data() {
     return {
       expanded: false,
@@ -41,7 +39,6 @@ export default {
       vid.muted = !vid.muted;
     },
     lightbox() {
-      // this.currentImage = item.url;
       this.largeImage = !this.largeImage;
     },
   },
@@ -51,7 +48,6 @@ export default {
     } else {
       this.videoItem = false;
     }
-    // console.log(this.item.url);
   },
 };
 </script>
@@ -66,8 +62,6 @@ export default {
   width: 100%;
 
   object-fit: cover;
-
-  // cursor: pointer;
 }
 .video {
   position: absolute;
