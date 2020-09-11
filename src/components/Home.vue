@@ -1,5 +1,8 @@
 <template>
   <div id="home">
+    <div class="loading" v-if="!loaded">
+      <img src="../assets/icons/loading.png" />
+    </div>
     <div id="header">
       <p id="title">super mirage</p>
       <a id="social" href="https://twitter.com/michael_mckain" target="_blank">
@@ -37,12 +40,16 @@ export default {
       items: [],
       item: {},
       shuffleText: false,
+      loaded: false,
     };
   },
   components: {
     Item,
   },
   methods: {
+    initLoad() {
+      this.loaded = true;
+    },
     shuffleItems() {
       var items = this.items;
       var m = items.length,
@@ -87,6 +94,8 @@ export default {
     console.log(json);
     this.items = json.slate.data.objects;
     this.shuffleItems();
+
+    window.addEventListener("load", this.initLoad);
   },
 };
 </script>
@@ -99,6 +108,41 @@ export default {
 
 #home {
   cursor: url("../assets/icons/cursor1.png"), pointer;
+}
+
+.loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 500;
+
+  img {
+    -webkit-animation: spin 4s linear infinite;
+    -moz-animation: spin 4s linear infinite;
+    animation: spin 4s linear infinite;
+  }
+}
+
+@-moz-keyframes spin {
+  100% {
+    -moz-transform: rotate(360deg);
+  }
+}
+@-webkit-keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+@keyframes spin {
+  100% {
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
 }
 
 #header {
