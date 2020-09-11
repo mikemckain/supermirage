@@ -85,23 +85,6 @@ export default {
     });
     const json = await response.json();
     console.log(json);
-    // const response = await fetch("https://slate.host/api/v1/get", {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     // NOTE: your API key
-    //     Authorization: "Basic SLAeedf8c8e-4179-4a55-8b31-82dc67f76310TE",
-    //   },
-    //   body: JSON.stringify({
-    //     data: {
-    //       // NOTE: optional, if you want your private slates too.
-    //       private: false,
-    //     },
-    //   }),
-    // });
-    // const json = await response.json();
-    // console.log(json);
-
     this.items = json.slate.data.objects;
     this.shuffleItems();
   },
