@@ -2,11 +2,10 @@
   <div>
     <video
       ref="video"
-      class="video"
-      v-if="videoItem"
+      class="item"
+      v-if="showVideoItem"
       @mouseenter="toggleAudio"
       @mouseleave="toggleAudio"
-      v-bind="$attrs"
       :src="item.url"
       :class="{ expanded }"
       loop
@@ -16,20 +15,21 @@
 
     <img
       @click="lightbox()"
-      class="photo"
+      class="iteme"
       :src="item.url"
-      v-else
-      v-bind="$attrs"
+      v-if="showPhotoItem"
       :class="{ expanded }"
     />
-
+    <!-- <transition name="fade"> -->
     <div
-      v-if="largeImage"
-      :class="['large-image-wrapper', {setFixed: setFixed} ]"
-      @click="largeImage = !largeImage"
+      v-if="largeItem"
+      :class="['large-item-wrapper', {setFixed: setFixed} ]"
+      @click="largeItem = !largeItem"
     >
-      <img id="large-image" :src="item.url" />
+      <img id="large-item" :src="item.url" />
     </div>
+    <!-- </transition> -->
+    <!--       v-bind="$attrs" -->
   </div>
 </template>
 
@@ -38,8 +38,9 @@ export default {
   data() {
     return {
       expanded: false,
-      largeImage: false,
-      videoItem: false,
+      largeItems: false,
+      showVideoItem: false,
+      showPhotoItem: false,
       setFixed: false,
     };
   },
@@ -52,34 +53,27 @@ export default {
       vid.muted = !vid.muted;
     },
     lightbox() {
-      this.largeImage = !this.largeImage;
+      this.largeItem = !this.largeItem;
     },
   },
   mounted() {
-    if (this.item.type == "video/mp4") {
-      this.videoItem = true;
-    } else {
-      this.videoItem = false;
-    }
-    setTimeout(() => {
-      this.setFixed = true;
-    }, 500);
+    if (this.item.type == "video/mp4" && !this.$isMobile)
+      this.showVideoItem = true;
+    else this.showVideoItem = false;
+
+    if (this.item.type == "image/jpeg") this.showPhotoItem = true;
+    else this.showPhotoIItem = false;
+
+    // console.log(this.item.url);
+    // setTimeout(() => {
+    //   this.setFixed = true;
+    // }, 500);
   },
 };
 </script>
 
 <style scoped lang="scss">
-.photo {
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  height: 100%;
-  width: 100%;
-
-  object-fit: cover;
-}
-.video {
+.item {
   position: absolute;
   top: 0;
   left: 0;
@@ -90,8 +84,8 @@ export default {
   object-fit: cover;
 }
 
-.large-image-wrapper {
-  position: absolute;
+.large-item-wrapper {
+  position: fixed;
   z-index: 200;
   top: 0;
   left: 0;
@@ -109,9 +103,18 @@ export default {
   z-index: 200;
 }
 
-#large-image {
+#large-item {
   width: auto;
-  height: 90%;
+  height: 95%;
   z-index: 300;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+  transition: 0s;
 }
 </style>
