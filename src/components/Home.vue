@@ -1,24 +1,59 @@
 <template>
   <div id="home">
-    <div class="loading" v-if="!loaded">
+    <!-- <div class="loading" v-if="!loaded">
       <img src="../assets/icons/loading.png" />
-    </div>
+    </div>-->
     <div id="header">
-      <p id="title">super mirage</p>
-      <a id="social" href="https://twitter.com/michael_mckain" target="_blank">
-        <img src="../assets/icons/twitter.svg" />
-      </a>
-      <div id="shuffle">
-        <p class="shuffle-text" v-show="shuffleText">shuffle grid</p>
-        <img
-          class="shuffle-icon"
-          @mouseenter="showShuffleText"
-          @mouseleave="showShuffleText"
-          src="../assets/icons/spiral.svg"
-          @click="shuffleItems()"
-        />
+      <p :class="['title', {titleFun: showInfo} ]" @mouseenter="info" @mouseleave="info">supermirage</p>
+      <div class="info" v-show="showInfo">
+        <a href="https://slate.host" target="_blank">hosting on IPFS w/ slate</a>
+        <br />
+
+        <a>shot w/ iPhone, mostly</a>
+      </div>
+      <div class="social" v-show="!showInfo">
+        <a href="https://twitter.com/michael_mckain" target="_blank">
+          <img src="../assets/icons/twitter.svg" />
+        </a>
+        <a href="https://soundcloud.com/crowncomfort" target="_blank">
+          <img src="../assets/icons/soundcloud.svg" />
+        </a>
+      </div>
+      <div id="control-panel">
+        <div class="control">
+          <p class="shuffle-text" v-show="shuffleText">new grid</p>
+          <img
+            class="shuffle-icon"
+            @mouseenter="showShuffleText"
+            @mouseleave="showShuffleText"
+            src="../assets/icons/spiral.svg"
+            @click="shuffleItems()"
+          />
+        </div>
+        <!-- <div
+          class="control"
+          v-if="!$isMobile"
+          @mouseenter="showVideoText"
+          @mouseleave="showVideoText"
+        >
+          <p class="video-text" v-show="videoText && videosOn">disable videos</p>
+          <img
+            class="video-off"
+            v-show="videosOn"
+            src="../assets/icons/videoOff.svg"
+            @click="removeVideos()"
+          />
+          <p class="video-text" v-show="videoText && !videosOn">enable videos</p>
+          <img
+            class="video-on"
+            v-show="!videosOn"
+            src="../assets/icons/videoOn.svg"
+            @click="showVideos()"
+          />
+        </div>-->
       </div>
     </div>
+
     <div class="grid cascade-items">
       <div class="item item-one">
         <img id="item-one" src="../assets/00000 Image.jpg" />
@@ -39,14 +74,53 @@ export default {
     return {
       items: [],
       item: {},
+      mobileItems: [],
       shuffleText: false,
+      videoText: false,
       loaded: false,
+      showInfo: false,
+      videosOn: true,
+      removedItems: [],
+      backup: null,
     };
   },
+  // computed: {
+  //   filterVideos: function () {
+  //     return this.items.filter(function (item) {
+  //       return item !== "video/mp4";
+  //     });
+  //   },
+  // },
+
   components: {
     Item,
   },
   methods: {
+    info() {
+      this.showInfo = !this.showInfo;
+    },
+    removeVideos() {
+      for (var i = this.items.length - 1; i >= 0; --i) {
+        this.backup = this.items;
+        if (this.items[i].type == "video/mp4") {
+          this.removedItems = this.items.splice(i, 1);
+          // this.items.splice(i, 1);
+          this.videosOn = false;
+        }
+      }
+    },
+    // showVideos() {
+    //   for (var i = this.items.length - 1; i >= 0; --i) {
+    //     this.items.splice(i, 0, this.removedItems);
+    //   }
+    //   // console.log(this.backup);
+    //   // console.log(this.removedItems);
+    //   this.videosOn = true;
+    //   this.items = this.removedItems;
+    //   console.log(this.items);
+    //   // return this.items;
+    //   // this.backup = this.items;
+    // },
     initLoad() {
       this.loaded = true;
     },
@@ -73,6 +147,9 @@ export default {
     showShuffleText() {
       this.shuffleText = !this.shuffleText;
     },
+    // showVideoText() {
+    //   this.videoText = !this.videoText;
+    // },
   },
   async beforeMount() {
     //slate API call
@@ -91,27 +168,70 @@ export default {
       }),
     });
     const json = await response.json();
-    console.log(json);
+    // console.log(json);
     this.items = json.slate.data.objects;
     this.shuffleItems();
 
-    window.addEventListener("load", this.initLoad);
+    if (this.$isMobile) {
+      this.removeVideos();
+
+      // this.items.filter(function (item) {
+      //   return item.type !== "video/mp4";
+      // });
+      // this.items.filter((item) => item.type !== "video/mp4");
+      // }
+    }
+    console.log(this.items);
+    // console.log(this.$isMobile);
+
+    // window.addEventListener("load", this.initLoad);
   },
+  // mounted() {
+  //       if (this.item.type == "video/mp4") {
+  //     this.$refs.videoSquare.addEventListener("loadeddata", () => {
+  //       //Video should now be loaded but we can add a second check
+  //       if (this.$refs.videoSquare.readyState >= 3) {
+  //         this.loaded = true;
+  //       }
+  //     });
+  //   }
+  // }
 };
 </script>
 
 <style scoped lang="scss">
 @font-face {
-  font-family: "Telegraf";
+  font-family: "Telegraf-bold";
   src: url("../assets/fonts/Telegraf-Bold.otf");
+}
+
+@font-face {
+  font-family: "Telegraf";
+  src: url("../assets/fonts/Telegraf-Regular.otf");
 }
 
 #home {
   cursor: url("../assets/icons/cursor1.png"), pointer;
 }
 
+.title {
+  cursor: url("../assets/icons/heart.png"), pointer;
+  margin: 5px 0px 0px 0px;
+  transition: 1s;
+  width: 100%;
+
+  &:hover {
+    color: rgb(255, 234, 151);
+    animation: hue-rotate 4s linear infinite;
+  }
+}
+
+// .titleFun {
+//   // border-bottom: 1px solid white;
+// }
+
 .loading {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100%;
@@ -125,6 +245,47 @@ export default {
     -webkit-animation: spin 4s linear infinite;
     -moz-animation: spin 4s linear infinite;
     animation: spin 4s linear infinite;
+  }
+}
+
+.info {
+  // position: fixed;
+  width: 100%;
+  background-color: black;
+  color: white;
+  // border: 1px solid white;
+  text-decoration: none;
+  font-family: Telegraf-Bold, sans-serif;
+  font-weight: 200;
+  font-size: 14px;
+  line-height: 80%;
+  // padding: 24px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 5px 5px 5px 0px;
+
+  a {
+    color: white !important;
+    text-decoration: none !important;
+
+    cursor: url("../assets/icons/cursor2.png"), pointer !important;
+    &:hover {
+      color: rgb(255, 229, 35);
+    }
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  img {
+    height: 35px;
+    margin: 0px 15px;
+    cursor: url("../assets/icons/cursor2.png"), pointer !important;
   }
 }
 
@@ -150,45 +311,79 @@ export default {
   top: 1vw;
   left: 1vw;
   z-index: 100;
-  font-family: "Telegraf";
+  font-family: "Telegraf-Bold";
   font-size: 14px;
   user-select: none;
   -moz-user-select: none;
   -webkit-user-drag: none;
   -webkit-user-select: none;
   -ms-user-select: none;
+  padding: 0px 10px 5px 0px;
+  text-align: left;
 
   p {
     background-color: black;
-    padding: 5px;
+    padding: 5px 3px 5px 0px;
   }
 
-  #social {
-    float: left;
+  a:visited {
+    text-decoration: none !important;
+  }
+}
+
+.social {
+  display: flex;
+  flex-direction: column;
+  float: left;
+  margin-top: 10px;
+  cursor: url("../assets/icons/cursor2.png"), pointer;
+
+  a {
+    cursor: url("../assets/icons/cursor2.png"), pointer;
     opacity: 0.5;
     &:hover {
       opacity: 1;
     }
-    cursor: url("../assets/icons/cursor2.png"), pointer;
   }
 
-  #shuffle {
-    position: fixed;
-    top: 1vw;
-    right: 1vw;
-    float: right;
-    display: flex;
-    height: 50px;
+  img {
+    width: 25px;
+  }
+}
 
-    .shuffle-icon {
-      opacity: 0.5;
-      cursor: url("../assets/icons/cursor2.png"), pointer;
+#control-panel {
+  position: fixed;
+  top: 1vw;
+  right: 1vw;
+  float: right;
+  display: flex;
+  flex-direction: column;
+  height: 50px;
 
-      &:hover {
-        animation: spin 2s linear infinite;
-        opacity: 1;
-      }
+  p {
+    margin: 0;
+  }
+
+  .shuffle-icon {
+    &:hover {
+      animation: spin 2s linear infinite;
     }
+  }
+}
+
+.control {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  cursor: url("../assets/icons/cursor2.png"), pointer;
+
+  opacity: 0.5;
+  &:hover {
+    opacity: 1;
+  }
+  p {
+    padding-left: 5px !important;
   }
 }
 
@@ -241,10 +436,11 @@ export default {
   -webkit-user-drag: none;
   -webkit-user-select: none;
   -ms-user-select: none;
+  cursor: url("../assets/icons/smile.png"), pointer !important;
 }
 
 .item-one {
-  cursor: url("../assets/icons/cursor1.png"), pointer !important;
+  cursor: url("../assets/icons/smile.png"), pointer !important;
 }
 
 .cascade-items {
@@ -275,7 +471,10 @@ export default {
       background-color: black;
     }
   }
-
+  .social {
+    margin-top: 0;
+    flex-direction: row;
+  }
   .grid {
     border: 0px solid black;
     grid-gap: 1px;
@@ -333,6 +532,48 @@ export default {
   100% {
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg);
+  }
+}
+
+@-moz-keyframes hue-rotate {
+  0% {
+    -webkit-filter: hue-rotate(0deg);
+  }
+
+  50% {
+    -webkit-filter: hue-rotate(180deg);
+  }
+
+  100% {
+    -webkit-filter: hue-rotate(0deg);
+  }
+}
+
+@-webkit-keyframes hue-rotate {
+  0% {
+    -webkit-filter: hue-rotate(0deg);
+  }
+
+  50% {
+    -webkit-filter: hue-rotate(180deg);
+  }
+
+  100% {
+    -webkit-filter: hue-rotate(0deg);
+  }
+}
+
+@keyframes hue-rotate {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+
+  50% {
+    filter: hue-rotate(180deg);
+  }
+
+  100% {
+    filter: hue-rotate(0deg);
   }
 }
 </style>

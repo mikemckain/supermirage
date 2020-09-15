@@ -1,35 +1,30 @@
 <template>
   <div>
     <video
-      ref="video"
-      class="item"
-      v-if="showVideoItem"
-      @mouseenter="toggleAudio"
-      @mouseleave="toggleAudio"
+      ref="videoSquare"
+      :class="['item video',{videoMuted: videoMuted}, {loading: !loaded}]"
+      v-if="videoItem"
+      @mouseenter="enableAudio"
+      @mouseleave="muteAudio"
+      @click="toggleAudio"
       :src="item.url"
-      :class="{ expanded }"
       loop
       autoplay
       muted
     ></video>
-
-    <img
-      @click="lightbox()"
-      class="iteme"
-      :src="item.url"
-      v-if="showPhotoItem"
-      :class="{ expanded }"
-    />
+    <div v-if="photoItem" @click="showLightbox()" :class="[{lightboxWrapper: lightbox}]">
+      <img :class="[{item: !lightbox}, {lightbox: lightbox}]" :src="item.url" />
+    </div>
     <!-- <transition name="fade"> -->
-    <div
-      v-if="largeItem"
+    <!-- <div
+      v-show="lightbox"
       :class="['large-item-wrapper', {setFixed: setFixed} ]"
-      @click="largeItem = !largeItem"
+      @click="showLightbox()"
     >
       <img id="large-item" :src="item.url" />
-    </div>
+    </div>-->
     <!-- </transition> -->
-    <!--       v-bind="$attrs" -->
+    <!-- v-bind="$attrs" -->
   </div>
 </template>
 
@@ -37,37 +32,67 @@
 export default {
   data() {
     return {
-      expanded: false,
-      largeItems: false,
-      showVideoItem: false,
-      showPhotoItem: false,
+      lightbox: false,
+      videoItem: false,
+      photoItem: false,
       setFixed: false,
+      loaded: false,
+      videoMuted: false,
     };
   },
   props: {
     item: Object,
   },
   methods: {
-    toggleAudio() {
-      var vid = this.$refs.video;
-      vid.muted = !vid.muted;
+    enableAudio() {
+      var vid = this.$refs.videoSquare;
+      vid.muted = false;
+      this.videoMuted = false;
     },
-    lightbox() {
-      this.largeItem = !this.largeItem;
+    muteAudio() {
+      var vid = this.$refs.videoSquare;
+      vid.muted = true;
+      this.videoMuted = true;
+    },
+    toggleAudio() {
+      var vid = this.$refs.videoSquare;
+      vid.muted = !vid.muted;
+      this.videoMuted = !this.videoMuted;
+    },
+    showLightbox() {
+      this.lightbox = !this.lightbox;
     },
   },
+
+  beforeMount() {
+    this.videoItem = this.item.type == "video/mp4";
+    this.photoItem = this.item.type == "image/jpeg";
+  },
   mounted() {
-    if (this.item.type == "video/mp4" && !this.$isMobile)
-      this.showVideoItem = true;
-    else this.showVideoItem = false;
+    if (this.item.type == "video/mp4") {
+      this.$refs.videoSquare.addEventListener("loadeddata", () => {
+        //Video should now be loaded but we can add a second check
 
-    if (this.item.type == "image/jpeg") this.showPhotoItem = true;
-    else this.showPhotoIItem = false;
+        if (this.$refs.videoSquare.readyState >= 3) {
+          this.loaded = true;
+        }
+      });
+    }
+    // document.onkeydown = (e) => {
+    //   // * ENABLED WHEN CHAT IS CLOSED *
+    //   if (this.lightbox) {
+    //     // right arrow
+    //     if (e.keyCode === 39) this.item++;
+    //     // left arrow
+    //     else if (e.keyCode === 37) this.item--;
+    //   }
+    //   // const videoElement = this.$refs.video;
 
-    // console.log(this.item.url);
-    // setTimeout(() => {
-    //   this.setFixed = true;
-    // }, 500);
+    //   // console.log(this.item.url);
+    //   // setTimeout(() => {
+    //   //   this.setFixed = true;
+    //   // }, 500);
+    // };
   },
 };
 </script>
@@ -82,11 +107,49 @@ export default {
   width: 100%;
 
   object-fit: cover;
+  cursor: url("../assets/icons/cursor2.png"), pointer;
 }
 
-.large-item-wrapper {
+.loading {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url("../assets/icons/videoLoading.svg");
+  background-color: black;
+  animation: loading 10s linear infinite alternate;
+
+  img {
+    -webkit-animation: spin 4s linear infinite;
+    -moz-animation: spin 4s linear infinite;
+    animation: spin 4s linear infinite;
+  }
+}
+
+@keyframes loading {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 100% 0;
+  }
+}
+
+.video {
+  cursor: url("../assets/icons/Audio.png"), pointer;
+}
+
+.videoMuted {
+  cursor: url("../assets/icons/muteAudio.png"), pointer;
+}
+
+.lightboxWrapper {
   position: fixed;
-  z-index: 200;
+  z-index: 400;
   top: 0;
   left: 0;
   width: 100%;
@@ -103,10 +166,13 @@ export default {
   z-index: 200;
 }
 
-#large-item {
+.lightbox {
+  position: fixed;
   width: auto;
   height: 95%;
   z-index: 300;
+  object-fit: contain;
+  cursor: url("../assets/icons/cursor3.png"), pointer;
 }
 
 .fade-enter-active,
