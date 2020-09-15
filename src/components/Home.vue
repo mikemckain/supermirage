@@ -30,27 +30,6 @@
             @click="shuffleItems()"
           />
         </div>
-        <!-- <div
-          class="control"
-          v-if="!$isMobile"
-          @mouseenter="showVideoText"
-          @mouseleave="showVideoText"
-        >
-          <p class="video-text" v-show="videoText && videosOn">disable videos</p>
-          <img
-            class="video-off"
-            v-show="videosOn"
-            src="../assets/icons/videoOff.svg"
-            @click="removeVideos()"
-          />
-          <p class="video-text" v-show="videoText && !videosOn">enable videos</p>
-          <img
-            class="video-on"
-            v-show="!videosOn"
-            src="../assets/icons/videoOn.svg"
-            @click="showVideos()"
-          />
-        </div>-->
       </div>
     </div>
 
@@ -81,16 +60,8 @@ export default {
       showInfo: false,
       videosOn: true,
       removedItems: [],
-      backup: null,
     };
   },
-  // computed: {
-  //   filterVideos: function () {
-  //     return this.items.filter(function (item) {
-  //       return item !== "video/mp4";
-  //     });
-  //   },
-  // },
 
   components: {
     Item,
@@ -109,18 +80,6 @@ export default {
         }
       }
     },
-    // showVideos() {
-    //   for (var i = this.items.length - 1; i >= 0; --i) {
-    //     this.items.splice(i, 0, this.removedItems);
-    //   }
-    //   // console.log(this.backup);
-    //   // console.log(this.removedItems);
-    //   this.videosOn = true;
-    //   this.items = this.removedItems;
-    //   console.log(this.items);
-    //   // return this.items;
-    //   // this.backup = this.items;
-    // },
     initLoad() {
       this.loaded = true;
     },
@@ -147,9 +106,6 @@ export default {
     showShuffleText() {
       this.shuffleText = !this.shuffleText;
     },
-    // showVideoText() {
-    //   this.videoText = !this.videoText;
-    // },
   },
   async beforeMount() {
     //slate API call
@@ -174,28 +130,8 @@ export default {
 
     if (this.$isMobile) {
       this.removeVideos();
-
-      // this.items.filter(function (item) {
-      //   return item.type !== "video/mp4";
-      // });
-      // this.items.filter((item) => item.type !== "video/mp4");
-      // }
     }
-    console.log(this.items);
-    // console.log(this.$isMobile);
-
-    // window.addEventListener("load", this.initLoad);
   },
-  // mounted() {
-  //       if (this.item.type == "video/mp4") {
-  //     this.$refs.videoSquare.addEventListener("loadeddata", () => {
-  //       //Video should now be loaded but we can add a second check
-  //       if (this.$refs.videoSquare.readyState >= 3) {
-  //         this.loaded = true;
-  //       }
-  //     });
-  //   }
-  // }
 };
 </script>
 

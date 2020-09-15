@@ -15,16 +15,6 @@
     <div v-if="photoItem" @click="showLightbox()" :class="[{lightboxWrapper: lightbox}]">
       <img :class="[{item: !lightbox}, {lightbox: lightbox}]" :src="item.url" />
     </div>
-    <!-- <transition name="fade"> -->
-    <!-- <div
-      v-show="lightbox"
-      :class="['large-item-wrapper', {setFixed: setFixed} ]"
-      @click="showLightbox()"
-    >
-      <img id="large-item" :src="item.url" />
-    </div>-->
-    <!-- </transition> -->
-    <!-- v-bind="$attrs" -->
   </div>
 </template>
 
@@ -78,21 +68,6 @@ export default {
         }
       });
     }
-    // document.onkeydown = (e) => {
-    //   // * ENABLED WHEN CHAT IS CLOSED *
-    //   if (this.lightbox) {
-    //     // right arrow
-    //     if (e.keyCode === 39) this.item++;
-    //     // left arrow
-    //     else if (e.keyCode === 37) this.item--;
-    //   }
-    //   // const videoElement = this.$refs.video;
-
-    //   // console.log(this.item.url);
-    //   // setTimeout(() => {
-    //   //   this.setFixed = true;
-    //   // }, 500);
-    // };
   },
 };
 </script>
