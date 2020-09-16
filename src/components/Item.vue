@@ -158,4 +158,11 @@ export default {
   opacity: 0;
   transition: 0s;
 }
+
+@media (max-width: 650px) {
+  .lightbox {
+    width: 90%;
+    height: auto;
+  }
+}
 </style>
