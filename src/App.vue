@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <!-- <div class="cover"></div> -->
     <Home />
   </div>
 </template>
@@ -37,5 +38,15 @@ body::-webkit-scrollbar {
   width: 100vw;
   transition: 0.5s;
   /* margin-top: 60px; */
+}
+
+.cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  z-index: 1000;
 }
 </style>
