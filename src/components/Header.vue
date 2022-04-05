@@ -10,7 +10,7 @@
       </div>
     </div>
     <div class="social" v-if="!$isMobile" v-show="!showInfo">
-      <a href="https://twitter.com/michael_mckain" target="_blank">
+      <a href="https://twitter.com/mmckain_" target="_blank">
         <img src="../assets/icons/twitter.svg" />
       </a>
       <a href="https://soundcloud.com/crowncomfort" target="_blank">

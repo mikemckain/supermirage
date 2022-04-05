@@ -67,7 +67,7 @@ export default {
       headers: {
         "Content-Type": "application/json",
         // NOTE: your API key
-        Authorization: "Basic SLAd2700d52-1e9a-4f18-9ad7-dfb046f3b603TE",
+        Authorization: "SLAd2700d52-1e9a-4f18-9ad7-dfb046f3b603TE",
       },
       body: JSON.stringify({
         data: {
@@ -77,7 +77,7 @@ export default {
       }),
     });
     const json = await response.json();
-    this.items = json.slate.data.objects;
+    this.items = json.slate.objects;
     this.shuffleItems();
 
     if (this.$isMobile) {
@@ -170,6 +170,8 @@ export default {
   .grid {
     border: 0px solid black;
     grid-gap: 1px;
+      grid-template-columns: repeat(2, 1fr);
+
   }
 
   #item-one {
@@ -178,29 +180,4 @@ export default {
   }
 }
 
-// Transition In
-// @keyframes fade-in {
-//   0% {
-//     -webkit-transform: translateY(5px);
-//     transform: translateY(15px);
-//     opacity: 0;
-//   }
-//   100% {
-//     -webkit-transform: translateY(0);
-//     transform: translateY(0);
-//     opacity: 1;
-//   }
-// }
-// @-webkit-keyframes fade-in {
-//   0% {
-//     -webkit-transform: translateY(5px);
-//     transform: translateY(50px);
-//     opacity: 0;
-//   }
-//   100% {
-//     -webkit-transform: translateY(0);
-//     transform: translateY(0);
-//     opacity: 1;
-//   }
-// }
 </style>
