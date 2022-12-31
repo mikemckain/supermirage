@@ -4,13 +4,12 @@
       ref="videoSquare"
       :class="['item video',{videoMuted: videoMuted}, {loading: !loaded}]"
       v-if="videoItem"
-      @mouseenter="enableAudio"
+      muted
       @mouseleave="muteAudio"
       @click="toggleAudio"
       :src="item.url"
       loop
       autoplay
-      muted
     ></video>
     <div v-if="photoItem" @click="showLightbox()" :class="[{lightboxWrapper: lightbox}]">
       <img :class="[{item: !lightbox}, {lightbox: lightbox}]" :src="item.url" />
@@ -27,7 +26,7 @@ export default {
       photoItem: false,
       setFixed: false,
       loaded: false,
-      videoMuted: false,
+      videoMuted: true,
     };
   },
   props: {
@@ -115,7 +114,7 @@ export default {
 }
 
 .video {
-  cursor: url("../assets/icons/Audio.png"), pointer;
+  cursor: url("../assets/icons/playAudio.png"), pointer;
 }
 
 .videoMuted {

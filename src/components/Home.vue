@@ -150,11 +150,11 @@ export default {
   -webkit-user-drag: none;
   -webkit-user-select: none;
   -ms-user-select: none;
-  cursor: url("../assets/icons/smile.png"), pointer !important;
+  cursor: url("../assets/icons/dove.png"), pointer !important;
 }
 
 .item-one {
-  cursor: url("../assets/icons/smile.png"), pointer !important;
+  cursor: url("../assets/icons/dove.png"), pointer !important;
 }
 
 // .cascade-items {
