@@ -4,7 +4,7 @@
       <p :class="['title', {titleHover: showInfo}]">supermirage</p>
       <div v-show="showInfo">
         <!-- <br /> -->
-        <p>shot w/ iPhone, mostly</p>
+        <p>shot on iPhone, mostly</p>
         <!-- <br /> -->
         <a href="https://slate.host" target="_blank">hosting on IPFS w/ slate</a>
       </div>
