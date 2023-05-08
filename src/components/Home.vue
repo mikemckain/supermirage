@@ -58,28 +58,52 @@ export default {
       }
       this.items = [];
       this.items = items;
+      console.log(items);
+    },
+    async fetchImages() {
+      // Pinata API call
+      const apiKey = "00ce5efdfe51b924335f";
+      const apiSecret =
+        "9e78e682b1d6c179e4a5c34921eac3db38f82ef1cc9fd2fc6d34f7dd8db8fa09";
+
+      try {
+        const response = await fetch(
+          "https://api.pinata.cloud/data/pinList?hashContains=QmQBSoZT2mHusbejs3rtovSD5ioZSzvBQuK6744CfWwJ1w?arg=${QmQBSoZT2mHusbejs3rtovSD5ioZSzvBQuK6744CfWwJ1w}",
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              pinata_api_key: apiKey,
+              pinata_secret_api_key: apiSecret,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log("Fetched data:", data);
+          console.log("First row:", data.rows[1]);
+          this.items = data.rows.map((item) => {
+            return {
+              url: `https://gateway.pinata.cloud/ipfs/${item.ipfs_pin_hash}`,
+              type: item.type,
+            };
+          });
+          this.shuffleItems();
+        } else {
+          console.error(
+            "Error fetching pinned files from Pinata:",
+            response.status,
+            response.statusText
+          );
+        }
+      } catch (error) {
+        console.error("Error fetching pinned files from Pinata:", error);
+      }
     },
   },
   async beforeMount() {
-    //slate API call
-    const response = await fetch("https://slate.host/api/v1/get-slate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // NOTE: your API key
-        Authorization: "SLAd2700d52-1e9a-4f18-9ad7-dfb046f3b603TE",
-      },
-      body: JSON.stringify({
-        data: {
-          // NOTE: your slate ID
-          id: "f3597efa-42ee-4d88-a12a-05e8e8cde21d",
-        },
-      }),
-    });
-    const json = await response.json();
-    this.items = json.slate.objects;
-    this.shuffleItems();
-
+    await this.fetchImages();
     if (this.$isMobile) {
       this.removeVideos();
     }
@@ -170,8 +194,7 @@ export default {
   .grid {
     border: 0px solid black;
     grid-gap: 1px;
-      grid-template-columns: repeat(2, 1fr);
-
+    grid-template-columns: repeat(2, 1fr);
   }
 
   #item-one {
@@ -179,5 +202,4 @@ export default {
     width: 35%;
   }
 }
-
 </style>
