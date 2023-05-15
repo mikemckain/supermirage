@@ -35,7 +35,7 @@ export default {
     removeVideos() {
       for (var i = this.items.length - 1; i >= 0; --i) {
         this.backup = this.items;
-        if (this.items[i].type == "video/mp4") {
+        if (this.items[i].contentType == "video/mp4") {
           this.removedItems = this.items.splice(i, 1);
           // this.items.splice(i, 1);
           this.videosOn = false;
