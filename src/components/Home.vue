@@ -64,7 +64,7 @@ export default {
   async beforeMount() {
     // Request to Express server route
     const responseFromServer = await fetch(
-      "https://super-mirage-naqz1fz1x-mikemckain.vercel.app/api/files"
+      "https://supermirage.pics/api/files"
     );
     const dataFromServer = await responseFromServer.json();
     console.log("Data from server:", dataFromServer); // Log the data to the console
