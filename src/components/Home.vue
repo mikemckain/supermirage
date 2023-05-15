@@ -157,7 +157,7 @@ export default {
 //   }
 // }
 
-//Mobile
+// mobile screens
 @media (max-width: 650px) {
   .grid {
     border: 0px solid black;

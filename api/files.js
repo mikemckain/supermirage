@@ -16,7 +16,6 @@ module.exports = cors(
 
       return response.data;
     }
-
     const auth = await getB2Authorization();
 
     const response = await axios({
