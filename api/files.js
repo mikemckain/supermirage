@@ -1,9 +1,7 @@
 const axios = require("axios");
 const cors = require("cors");
 
-module.exports = async (req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-
+module.exports = cors(async function (req, res) {
   async function getB2Authorization() {
     const response = await axios({
       method: "get",
@@ -39,4 +37,4 @@ module.exports = async (req, res) => {
   });
 
   res.json(files);
-};
+});
