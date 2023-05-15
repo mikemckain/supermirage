@@ -16,7 +16,7 @@
       @click="showLightbox()"
       :class="[{ lightboxWrapper: lightbox }]"
     >
-      <img class="image-item" :src="item.url" />
+      <img :class="{ lightbox: lightbox }" class="image-item" :src="item.url" />
     </div>
   </div>
 </template>
@@ -155,11 +155,16 @@ export default {
 
 .lightbox {
   position: fixed;
-  width: auto;
-  height: 95%;
+  max-width: 100%;
+  max-height: 95%;
   z-index: 300;
   object-fit: contain;
   cursor: url("../assets/icons/cursor3.png"), pointer;
+  margin: auto;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
 }
 
 .fade-enter-active,
@@ -174,8 +179,8 @@ export default {
 @media (max-width: 650px) {
   .lightbox {
     width: 92%;
-    height: auto;
-    margin-bottom: 5vh;
+    // height: auto;
+    // margin-bottom: 5vh;
   }
 }
 </style>

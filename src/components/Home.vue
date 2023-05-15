@@ -67,9 +67,7 @@ export default {
       "https://supermirage.pics/api/files"
     );
     const dataFromServer = await responseFromServer.json();
-    console.log("Data from server:", dataFromServer); // Log the data to the console
     this.items = dataFromServer;
-    console.log("Items:", this.items);
     this.shuffleItems();
 
     if (this.$isMobile) {
