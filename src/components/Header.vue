@@ -1,12 +1,11 @@
 <template>
   <div class="header">
     <div class="info" @mouseenter="info" @mouseleave="info">
-      <p :class="['title', {titleHover: showInfo}]">supermirage</p>
+      <p :class="['title', { titleHover: showInfo }]">supermirage</p>
       <div v-show="showInfo">
         <!-- <br /> -->
         <p>shot on iPhone, mostly</p>
         <!-- <br /> -->
-        <a href="https://slate.host" target="_blank">hosting on IPFS w/ slate</a>
       </div>
     </div>
     <div class="social" v-if="!$isMobile" v-show="!showInfo">
@@ -21,7 +20,7 @@
     <div class="control">
       <p class="shuffle-text" v-show="shuffleText && !$isMobile">new grid</p>
       <img
-        :class="{shuffleIcon: !$isMobile}"
+        :class="{ shuffleIcon: !$isMobile }"
         @mouseenter="showShuffleText"
         @mouseleave="showShuffleText"
         src="../assets/icons/spiral.svg"

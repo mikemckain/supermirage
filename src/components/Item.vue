@@ -2,7 +2,7 @@
   <div>
     <video
       ref="videoSquare"
-      :class="['item video',{videoMuted: videoMuted}, {loading: !loaded}]"
+      :class="['item video', { videoMuted: videoMuted }, { loading: !loaded }]"
       v-if="videoItem"
       muted
       @mouseleave="muteAudio"
@@ -11,8 +11,12 @@
       loop
       autoplay
     ></video>
-    <div v-if="photoItem" @click="showLightbox()" :class="[{lightboxWrapper: lightbox}]">
-      <img :class="[{item: !lightbox}, {lightbox: lightbox}]" :src="item.url" />
+    <div
+      v-if="photoItem"
+      @click="showLightbox()"
+      :class="[{ lightboxWrapper: lightbox }]"
+    >
+      <img class="image-item" :src="item.url" />
     </div>
   </div>
 </template>
@@ -52,16 +56,16 @@ export default {
       this.lightbox = !this.lightbox;
     },
   },
-
   beforeMount() {
-    this.videoItem = this.item.type == "video/mp4";
-    this.photoItem = this.item.type == "image/jpeg";
+    this.videoItem = this.item.contentType == "video/mp4";
+    this.photoItem =
+      this.item.contentType == "image/jpeg" ||
+      this.item.contentType === "image/png";
   },
   mounted() {
-    if (this.item.type == "video/mp4") {
+    if (this.videoItem) {
       this.$refs.videoSquare.addEventListener("loadeddata", () => {
         //Video should now be loaded but we can add a second check
-
         if (this.$refs.videoSquare.readyState >= 3) {
           this.loaded = true;
         }
@@ -84,6 +88,15 @@ export default {
   cursor: url("../assets/icons/cursor2.png"), pointer;
 }
 
+.image-item {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
 .loading {
   position: absolute;
   top: 0;
@@ -97,11 +110,11 @@ export default {
   background-color: black;
   animation: loading 10s linear infinite alternate;
 
-  img {
-    -webkit-animation: spin 4s linear infinite;
-    -moz-animation: spin 4s linear infinite;
-    animation: spin 4s linear infinite;
-  }
+  // img {
+  //   -webkit-animation: spin 4s linear infinite;
+  //   -moz-animation: spin 4s linear infinite;
+  //   animation: spin 4s linear infinite;
+  // }
 }
 
 @keyframes loading {

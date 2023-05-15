@@ -60,24 +60,14 @@ export default {
       this.items = items;
     },
   },
+
   async beforeMount() {
-    //slate API call
-    const response = await fetch("https://slate.host/api/v1/get-slate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        // NOTE: your API key
-        Authorization: "SLAd2700d52-1e9a-4f18-9ad7-dfb046f3b603TE",
-      },
-      body: JSON.stringify({
-        data: {
-          // NOTE: your slate ID
-          id: "f3597efa-42ee-4d88-a12a-05e8e8cde21d",
-        },
-      }),
-    });
-    const json = await response.json();
-    this.items = json.slate.objects;
+    // Request to Express server route
+    const responseFromServer = await fetch("http://localhost:3000/files");
+    const dataFromServer = await responseFromServer.json();
+    console.log("Data from server:", dataFromServer); // Log the data to the console
+    this.items = dataFromServer;
+    console.log("Items:", this.items);
     this.shuffleItems();
 
     if (this.$isMobile) {
@@ -116,13 +106,13 @@ export default {
 
 .item {
   position: relative;
+
   user-select: none;
   -moz-user-select: none;
   -webkit-user-drag: none;
   -webkit-user-select: none;
   -ms-user-select: none;
   cursor: url("../assets/icons/cursor2.png"), pointer;
-
   // -webkit-animation: fade-in 0.5s ease-in 0.3s both;
   // animation: fade-in 0.5s ease-in 0.3s both;
 }
@@ -170,8 +160,7 @@ export default {
   .grid {
     border: 0px solid black;
     grid-gap: 1px;
-      grid-template-columns: repeat(2, 1fr);
-
+    grid-template-columns: repeat(2, 1fr);
   }
 
   #item-one {
@@ -179,5 +168,4 @@ export default {
     width: 35%;
   }
 }
-
 </style>
