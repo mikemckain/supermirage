@@ -37,7 +37,7 @@ module.exports = async function (req, res) {
       Authorization: auth.authorizationToken,
     },
     data: {
-      maxFileCount: 5, // Change this to the maximum number of files you want to fetch
+      maxFileCount: 5000, // Change this to the maximum number of files you want to fetch
       bucketId: process.env.B2_BUCKET_ID,
     },
   });
