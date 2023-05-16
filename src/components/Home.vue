@@ -113,6 +113,7 @@ export default {
   -webkit-user-select: none;
   -ms-user-select: none;
   cursor: url("../assets/icons/cursor2.png"), pointer;
+  animation: fade-in 0.5s ease-in-out;
   // -webkit-animation: fade-in 0.5s ease-in 0.3s both;
   // animation: fade-in 0.5s ease-in 0.3s both;
 }
@@ -147,13 +148,22 @@ export default {
   cursor: url("../assets/icons/dove.png"), pointer !important;
 }
 
-// .cascade-items {
-//   @for $i from 1 through 15 {
-//     :nth-child(#{$i}n) {
-//       animation-delay: #{$i * 0.15}s !important;
-//     }
-//   }
-// }
+.cascade-items {
+  @for $i from 1 through 15 {
+    :nth-child(#{$i}n) {
+      animation-delay: #{$i * 0.15}s !important;
+    }
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
 // mobile screens
 @media (max-width: 650px) {

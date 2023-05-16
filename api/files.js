@@ -38,7 +38,7 @@ module.exports = async function (req, res) {
     },
     data: {
       bucketId: process.env.B2_BUCKET_ID,
-      maxFileCount: 100, // Change this to the maximum number of files you want to fetch
+      // maxFileCount: 100, // Change this to the maximum number of files you want to fetch
     },
   });
 
