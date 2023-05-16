@@ -113,7 +113,7 @@ export default {
   -webkit-user-select: none;
   -ms-user-select: none;
   cursor: url("../assets/icons/cursor2.png"), pointer;
-  animation: fade-in 0.5s ease-in-out;
+  // animation: fade-in 0.5s ease-in-out;
   // -webkit-animation: fade-in 0.5s ease-in 0.3s both;
   // animation: fade-in 0.5s ease-in 0.3s both;
 }
