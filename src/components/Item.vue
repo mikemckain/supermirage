@@ -179,8 +179,6 @@ export default {
 @media (max-width: 650px) {
   .lightbox {
     width: 92%;
-    // height: auto;
-    // margin-bottom: 5vh;
   }
 }
 </style>
