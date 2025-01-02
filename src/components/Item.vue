@@ -171,7 +171,7 @@ export default {
 
 .lightbox {
   position: fixed;
-  max-width: 100%;
+  max-width: 95%;
   max-height: 95%;
   z-index: 300;
   object-fit: contain;
