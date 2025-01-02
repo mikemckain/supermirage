@@ -68,9 +68,10 @@ export default {
     },
   },
   beforeMount() {
-    this.videoItem = this.item.contentType == "video/mp4";
+    this.videoItem = this.item.contentType === "video/mp4" || 
+                     this.item.contentType === "video/webm";
     this.photoItem =
-      this.item.contentType == "image/jpeg" ||
+      this.item.contentType === "image/jpeg" ||
       this.item.contentType === "image/png";
   },
   mounted() {

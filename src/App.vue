@@ -36,7 +36,7 @@ body::-webkit-scrollbar {
   color: white;
   background-color: black;
   width: 100vw;
-  transition: 0.5s;
+  /* transition: 0.5s; */
   /* margin-top: 60px; */
 }
 
