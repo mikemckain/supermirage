@@ -69,12 +69,29 @@ export default {
     },
   },
   beforeMount() {
-    this.videoItem = this.item.contentType === "video/mp4" || 
-                     this.item.contentType === "video/webm";
+    // Helper function to check file extension
+    const getFileExtension = (url) => {
+      return url.split('.').pop().toLowerCase();
+    };
+
+    const extension = getFileExtension(this.item.url);
+    
     this.photoItem =
       this.item.contentType === "image/jpeg" ||
       this.item.contentType === "image/png" ||
-      this.item.contentType === "image/webp";
+      this.item.contentType === "image/webp" ||
+      extension === 'webp' ||
+      extension === 'jpg' ||
+      extension === 'jpeg' ||
+      extension === 'png';
+      
+    this.videoItem = 
+      !this.photoItem && (
+        this.item.contentType === "video/mp4" || 
+        this.item.contentType === "video/webm" ||
+        extension === 'mp4' ||
+        extension === 'webm'
+      );
   },
   mounted() {
     if (this.videoItem) {
