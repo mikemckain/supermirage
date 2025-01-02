@@ -8,8 +8,9 @@
       @mouseleave="muteAudio"
       @click="toggleAudio"
       :src="item.url"
-      preload="metadata"
+      preload="auto"
       loading="lazy"
+      fetchpriority="high"
       loop
       autoplay
       playsinline
@@ -72,7 +73,8 @@ export default {
                      this.item.contentType === "video/webm";
     this.photoItem =
       this.item.contentType === "image/jpeg" ||
-      this.item.contentType === "image/png";
+      this.item.contentType === "image/png" ||
+      this.item.contentType === "image/webp";
   },
   mounted() {
     if (this.videoItem) {
