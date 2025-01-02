@@ -8,8 +8,11 @@
       @mouseleave="muteAudio"
       @click="toggleAudio"
       :src="item.url"
+      preload="metadata"
+      loading="lazy"
       loop
       autoplay
+      playsinline
     ></video>
     <div
       v-if="photoItem"
