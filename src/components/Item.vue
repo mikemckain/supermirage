@@ -16,7 +16,11 @@
       @click="showLightbox()"
       :class="[{ lightboxWrapper: lightbox }]"
     >
-      <img :class="{ lightbox: lightbox }" class="image-item" :src="item.url" />
+      <img 
+        :class="['image-item', { lightbox: lightbox, 'opacity-0': !imageLoaded }]" 
+        :src="item.url"
+        @load="onImageLoad"
+      />
     </div>
   </div>
 </template>
@@ -31,6 +35,7 @@ export default {
       setFixed: false,
       loaded: false,
       videoMuted: true,
+      imageLoaded: false,
     };
   },
   props: {
@@ -54,6 +59,9 @@ export default {
     },
     showLightbox() {
       this.lightbox = !this.lightbox;
+    },
+    onImageLoad() {
+      this.imageLoaded = true;
     },
   },
   beforeMount() {
@@ -95,6 +103,8 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
+  transition: opacity 0.5s ease-in-out;
+  opacity: 1;
 }
 
 .loading {
@@ -180,5 +190,9 @@ export default {
   .lightbox {
     width: 92%;
   }
+}
+
+.opacity-0 {
+  opacity: 0;
 }
 </style>
