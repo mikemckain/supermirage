@@ -5,9 +5,13 @@
       <div class="item item-one">
         <img id="item-one" src="../assets/00000 Image.jpg" />
       </div>
-      <div class="item" v-for="item in items" :key="item.url">
+      <div class="item" v-for="item in visibleItems" :key="item.url">
         <Item :item="item" />
       </div>
+    </div>
+    <!-- Modified loading indicator with ref -->
+    <div v-if="hasMoreItems" ref="loadingTrigger" class="loading-more">
+      {{ isLoading ? '' : '' }}
     </div>
   </div>
 </template>
@@ -16,14 +20,19 @@
 import Item from "./Item";
 import Header from "./Header";
 
+const ITEMS_PER_PAGE = 13;
+
 export default {
   name: "Home",
   data() {
     return {
-      items: [],
-      item: {},
+      allItems: [], // All items from server
+      visibleItems: [], // Currently visible items
+      currentPage: 0,
+      isLoading: false,
       videosOn: true,
       removedItems: [],
+      observer: null,
     };
   },
 
@@ -33,45 +42,138 @@ export default {
   },
   methods: {
     removeVideos() {
-      for (var i = this.items.length - 1; i >= 0; --i) {
-        this.backup = this.items;
-        if (this.items[i].contentType == "video/mp4") {
-          this.removedItems = this.items.splice(i, 1);
+      for (var i = this.allItems.length - 1; i >= 0; --i) {
+        this.backup = this.allItems;
+        if (this.allItems[i].contentType == "video/mp4") {
+          this.removedItems = this.allItems.splice(i, 1);
           // this.items.splice(i, 1);
           this.videosOn = false;
         }
       }
     },
     shuffleItems() {
-      var items = this.items;
+      const items = [...this.allItems];
       var m = items.length,
         t,
         i;
-      // While there remain elements to shuffle…
       while (m) {
-        // Pick a remaining element…
         i = Math.floor(Math.random() * m--);
-        // And swap it with the current element.
         t = items[m];
         items[m] = items[i];
         items[i] = t;
       }
-      this.items = [];
-      this.items = items;
+      this.allItems = items;
+      
+      // Reset pagination when shuffling
+      this.currentPage = 1;
+      this.visibleItems = this.allItems.slice(0, ITEMS_PER_PAGE);
     },
+    loadMoreItems() {
+      if (this.isLoading || !this.hasMoreItems) return;
+      
+      this.isLoading = true;
+      
+      setTimeout(() => {
+        const start = this.currentPage * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE;
+        const newItems = this.allItems.slice(start, end);
+        
+        // Filter out any duplicates
+        const uniqueNewItems = newItems.filter(newItem => 
+          !this.visibleItems.some(visibleItem => visibleItem.url === newItem.url)
+        );
+        
+        if (uniqueNewItems.length) {
+          this.visibleItems = [...this.visibleItems, ...uniqueNewItems];
+          this.currentPage++;
+        }
+        
+        this.isLoading = false;
+      }, 500);
+    },
+    setupIntersectionObserver() {
+      if (this.observer) {
+        this.observer.disconnect();
+      }
+
+      const options = {
+        root: null,
+        rootMargin: '300px',
+        threshold: 0.1
+      };
+
+      this.observer = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) {
+          this.loadMoreItems();
+        }
+      }, options);
+
+      // Use $refs to observe the loading trigger
+      if (this.$refs.loadingTrigger) {
+        this.observer.observe(this.$refs.loadingTrigger);
+      }
+    }
   },
 
   async beforeMount() {
-    // Request to Express server route
-    const responseFromServer = await fetch(
-      "https://supermirage.pics/api/files"
-    );
+    const responseFromServer = await fetch("https://supermirage.pics/api/files");
     const dataFromServer = await responseFromServer.json();
-    this.items = dataFromServer;
-    this.shuffleItems();
+    this.allItems = dataFromServer;
+    
+    // Initial shuffle
+    const items = [...dataFromServer];
+    var m = items.length,
+      t,
+      i;
+    while (m) {
+      i = Math.floor(Math.random() * m--);
+      t = items[m];
+      items[m] = items[i];
+      items[i] = t;
+    }
+    this.allItems = items;
+    
+    // Set initial visible items
+    this.visibleItems = this.allItems.slice(0, ITEMS_PER_PAGE);
+    this.currentPage = 1;
 
     if (this.$isMobile) {
       this.removeVideos();
+    }
+  },
+
+  mounted() {
+    this.$nextTick(() => {
+      this.setupIntersectionObserver();
+    });
+  },
+
+  beforeDestroy() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  },
+
+  computed: {
+    hasMoreItems() {
+      // Check if we have more unique items to load
+      const currentCount = this.visibleItems.length;
+      const totalCount = this.allItems.length;
+      return currentCount < totalCount;
+    }
+  },
+
+  watch: {
+    // Re-setup observer when loading trigger becomes visible
+    hasMoreItems: {
+      handler(newVal) {
+        if (newVal) {
+          this.$nextTick(() => {
+            this.setupIntersectionObserver();
+          });
+        }
+      },
+      immediate: true
     }
   },
 };
@@ -177,5 +279,11 @@ export default {
     height: 45%;
     width: 35%;
   }
+}
+
+.loading-more {
+  text-align: center;
+  padding: 2rem;
+  font-family: "Telegraf";
 }
 </style>
