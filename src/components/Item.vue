@@ -2,11 +2,12 @@
   <div>
     <video
       ref="videoSquare"
-      :class="['item video', { videoMuted: videoMuted }, { loading: !loaded }]"
+      :class="['item video', { videoMuted: videoMuted }, { loading: !loaded && !loadError }]"
       v-if="videoItem"
       muted
       @mouseleave="muteAudio"
       @click="toggleAudio"
+      @error="handleVideoError"
       :src="item.url"
       preload="auto"
       loading="lazy"
@@ -15,16 +16,26 @@
       autoplay
       playsinline
     ></video>
+    <!-- Show fallback for video load errors -->
+    <div v-if="videoItem && loadError" class="error-fallback">
+      <div class="loading-indicator">Media unavailable</div>
+    </div>
+    
     <div
       v-if="photoItem"
       @click="showLightbox()"
       :class="[{ lightboxWrapper: lightbox }]"
     >
       <img 
-        :class="['image-item', { lightbox: lightbox, 'opacity-0': !imageLoaded }]" 
+        :class="['image-item', { lightbox: lightbox, 'opacity-0': !imageLoaded && !imageError }]" 
         :src="item.url"
         @load="onImageLoad"
+        @error="handleImageError"
       />
+      <!-- Show fallback for image load errors -->
+      <div v-if="imageError" class="error-fallback">
+        <div class="loading-indicator">Image unavailable</div>
+      </div>
     </div>
   </div>
 </template>
@@ -38,8 +49,11 @@ export default {
       photoItem: false,
       setFixed: false,
       loaded: false,
+      loadError: false,
       videoMuted: true,
       imageLoaded: false,
+      imageError: false,
+      loadingTimeout: null,
     };
   },
   props: {
@@ -66,6 +80,26 @@ export default {
     },
     onImageLoad() {
       this.imageLoaded = true;
+      this.imageError = false;
+      if (this.loadingTimeout) {
+        clearTimeout(this.loadingTimeout);
+      }
+    },
+    handleImageError() {
+      this.imageError = true;
+      this.imageLoaded = false;
+      console.error('Image failed to load:', this.item.url);
+    },
+    handleVideoError() {
+      this.loadError = true;
+      this.loaded = false;
+      console.error('Video failed to load:', this.item.url);
+    },
+    // Attempt to reload media if it initially fails
+    retryLoading() {
+      if (this.videoItem && this.$refs.videoSquare) {
+        this.$refs.videoSquare.load();
+      }
     },
   },
   beforeMount() {
@@ -95,12 +129,36 @@ export default {
   },
   mounted() {
     if (this.videoItem) {
+      // Set timeout to handle videos that never load
+      this.loadingTimeout = setTimeout(() => {
+        if (!this.loaded && !this.loadError) {
+          console.warn('Video load timeout:', this.item.url);
+          this.loadError = true;
+        }
+      }, 10000); // 10 second timeout
+      
       this.$refs.videoSquare.addEventListener("loadeddata", () => {
         //Video should now be loaded but we can add a second check
         if (this.$refs.videoSquare.readyState >= 3) {
           this.loaded = true;
+          this.loadError = false;
+          if (this.loadingTimeout) {
+            clearTimeout(this.loadingTimeout);
+          }
         }
       });
+      
+      // Stalled event handler
+      this.$refs.videoSquare.addEventListener("stalled", () => {
+        console.warn('Video stalled:', this.item.url);
+        this.retryLoading();
+      });
+    }
+  },
+  beforeDestroy() {
+    // Clear any pending timeouts
+    if (this.loadingTimeout) {
+      clearTimeout(this.loadingTimeout);
     }
   },
 };
@@ -217,5 +275,25 @@ export default {
 
 .opacity-0 {
   opacity: 0;
+}
+
+.error-fallback {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: black;
+  z-index: 2;
+}
+
+.loading-indicator {
+  font-family: "Telegraf", sans-serif;
+  font-size: 14px;
+  color: white;
+  opacity: 0.7;
 }
 </style>

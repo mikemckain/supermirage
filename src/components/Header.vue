@@ -10,10 +10,10 @@
     </div>
     <div class="social" v-if="!$isMobile" v-show="!showInfo">
       <a href="https://twitter.com/mmckain_" target="_blank">
-        <img src="../assets/icons/twitter.svg" />
+        <img src="../assets/icons/twitter.svg" loading="lazy" />
       </a>
       <a href="https://soundcloud.com/crowncomfort" target="_blank">
-        <img src="../assets/icons/soundcloud.svg" />
+        <img src="../assets/icons/soundcloud.svg" loading="lazy" />
       </a>
     </div>
     <!-- <div class="control-panel"> -->
@@ -24,7 +24,8 @@
         @mouseenter="showShuffleText"
         @mouseleave="showShuffleText"
         src="../assets/icons/spiral.svg"
-        @click="shuffleItems()"
+        @click="shuffleItems"
+        loading="lazy"
       />
     </div>
     <!-- </div> -->
@@ -42,13 +43,17 @@ export default {
   },
   methods: {
     info() {
+      if (this.$isMobile) return;
       this.showInfo = !this.showInfo;
     },
     showShuffleText() {
+      if (this.$isMobile) return;
       this.shuffleText = !this.shuffleText;
     },
     shuffleItems() {
-      this.$emit("shuffle-items");
+      setTimeout(() => {
+        this.$emit("shuffle-items");
+      }, 50);
     },
   },
 };

@@ -31,7 +31,7 @@ export default {
       currentPage: 0,
       isLoading: false,
       videosOn: true,
-      removedItems: [],
+      failedItems: [], // Track failed items
       observer: null,
     };
   },
@@ -41,15 +41,19 @@ export default {
     Header,
   },
   methods: {
-    removeVideos() {
-      for (var i = this.allItems.length - 1; i >= 0; --i) {
-        this.backup = this.allItems;
-        if (this.allItems[i].contentType == "video/mp4") {
-          this.removedItems = this.allItems.splice(i, 1);
-          // this.items.splice(i, 1);
-          this.videosOn = false;
-        }
-      }
+    // Modified to optimize rather than remove videos on mobile
+    optimizeForMobile() {
+      if (!this.$isMobile) return;
+      
+      // Instead of removing videos, we'll optimize loading
+      // by reducing the initial load count on mobile
+      const optimizedItems = [...this.allItems];
+      
+      // Filter out extremely large videos if needed based on contentType or size
+      this.allItems = optimizedItems;
+      
+      // Adjust items per page for mobile
+      this.visibleItems = this.allItems.slice(0, 8); // Fewer items initially for mobile
     },
     shuffleItems() {
       const items = [...this.allItems];
@@ -66,7 +70,7 @@ export default {
       
       // Reset pagination when shuffling
       this.currentPage = 1;
-      this.visibleItems = this.allItems.slice(0, ITEMS_PER_PAGE);
+      this.visibleItems = this.allItems.slice(0, this.$isMobile ? 8 : ITEMS_PER_PAGE);
     },
     loadMoreItems() {
       if (this.isLoading || !this.hasMoreItems) return;
@@ -74,8 +78,8 @@ export default {
       this.isLoading = true;
       
       setTimeout(() => {
-        const start = this.currentPage * ITEMS_PER_PAGE;
-        const end = start + ITEMS_PER_PAGE;
+        const start = this.currentPage * (this.$isMobile ? 8 : ITEMS_PER_PAGE);
+        const end = start + (this.$isMobile ? 8 : ITEMS_PER_PAGE);
         const newItems = this.allItems.slice(start, end);
         
         // Filter out any duplicates
@@ -98,7 +102,7 @@ export default {
 
       const options = {
         root: null,
-        rootMargin: '300px',
+        rootMargin: this.$isMobile ? '150px' : '300px', // Reduced margin on mobile
         threshold: 0.1
       };
 
@@ -116,29 +120,38 @@ export default {
   },
 
   async beforeMount() {
-    const responseFromServer = await fetch("https://supermirage.pics/api/files");
-    const dataFromServer = await responseFromServer.json();
-    this.allItems = dataFromServer;
-    
-    // Initial shuffle
-    const items = [...dataFromServer];
-    var m = items.length,
-      t,
-      i;
-    while (m) {
-      i = Math.floor(Math.random() * m--);
-      t = items[m];
-      items[m] = items[i];
-      items[i] = t;
-    }
-    this.allItems = items;
-    
-    // Set initial visible items
-    this.visibleItems = this.allItems.slice(0, ITEMS_PER_PAGE);
-    this.currentPage = 1;
-
-    if (this.$isMobile) {
-      this.removeVideos();
+    try {
+      const responseFromServer = await fetch("https://supermirage.pics/api/files");
+      
+      if (!responseFromServer.ok) {
+        throw new Error(`Failed to fetch items: ${responseFromServer.status}`);
+      }
+      
+      const dataFromServer = await responseFromServer.json();
+      this.allItems = dataFromServer;
+      
+      // Initial shuffle
+      const items = [...dataFromServer];
+      var m = items.length,
+        t,
+        i;
+      while (m) {
+        i = Math.floor(Math.random() * m--);
+        t = items[m];
+        items[m] = items[i];
+        items[i] = t;
+      }
+      this.allItems = items;
+      
+      // Set initial visible items - fewer for mobile
+      const initialCount = this.$isMobile ? 8 : ITEMS_PER_PAGE;
+      this.visibleItems = this.allItems.slice(0, initialCount);
+      this.currentPage = 1;
+      
+      // Optimize for mobile instead of removing videos
+      this.optimizeForMobile();
+    } catch (error) {
+      console.error('Failed to load media:', error);
     }
   },
 
@@ -215,9 +228,7 @@ export default {
   -webkit-user-select: none;
   -ms-user-select: none;
   cursor: url("../assets/icons/cursor2.png"), pointer;
-  // animation: fade-in 0.5s ease-in-out;
-  // -webkit-animation: fade-in 0.5s ease-in 0.3s both;
-  // animation: fade-in 0.5s ease-in 0.3s both;
+  min-height: 100px; /* Ensure minimum height for items */
 }
 
 .item::before {
@@ -278,6 +289,11 @@ export default {
   #item-one {
     height: 45%;
     width: 35%;
+  }
+  
+  /* Ensure minimum size for mobile grid items */
+  .item {
+    min-height: 100px;
   }
 }
 
