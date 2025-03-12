@@ -14,8 +14,6 @@
       loop
       autoplay
       playsinline
-      @loadeddata="onVideoLoad"
-      @error="onVideoError"
     ></video>
     <div
       v-if="photoItem"
@@ -23,12 +21,9 @@
       :class="[{ lightboxWrapper: lightbox }]"
     >
       <img 
-        :class="['image-item', { lightbox: lightbox, 'opacity-0': !imageLoaded, 'loading': !imageLoaded }]" 
+        :class="['image-item', { lightbox: lightbox, 'opacity-0': !imageLoaded }]" 
         :src="item.url"
         @load="onImageLoad"
-        @error="onImageError"
-        loading="lazy"
-        fetchpriority="high"
       />
     </div>
   </div>
@@ -69,23 +64,8 @@ export default {
     showLightbox() {
       this.lightbox = !this.lightbox;
     },
-    onVideoLoad() {
-      if (this.$refs.videoSquare.readyState >= 3) {
-        this.loaded = true;
-        this.$emit('media-load', this.item.url);
-      }
-    },
-    onVideoError(event) {
-      console.error('Video load error:', event);
-      this.$emit('media-error', this.item.url);
-    },
     onImageLoad() {
       this.imageLoaded = true;
-      this.$emit('media-load', this.item.url);
-    },
-    onImageError(event) {
-      console.error('Image load error:', event);
-      this.$emit('media-error', this.item.url);
     },
   },
   beforeMount() {
@@ -159,20 +139,23 @@ export default {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: rgba(0, 0, 0, 0.1);
   background-image: url("../assets/icons/videoLoading.svg");
-  background-size: 40px;
-  background-position: center;
-  background-repeat: no-repeat;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background-color: black;
+  animation: loading 10s linear infinite alternate;
+
+  // img {
+  //   -webkit-animation: spin 4s linear infinite;
+  //   -moz-animation: spin 4s linear infinite;
+  //   animation: spin 4s linear infinite;
+  // }
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
+@keyframes loading {
+  from {
+    background-position: 0 0;
   }
-  50% {
-    opacity: .5;
+  to {
+    background-position: 100% 0;
   }
 }
 

@@ -3,32 +3,15 @@
     <Header @shuffle-items="shuffleItems()" />
     <div class="grid cascade-items">
       <div class="item item-one">
-        <img 
-          id="item-one" 
-          src="../assets/00000 Image.jpg"
-          @error="handleImageError($event)" 
-          loading="eager"
-        />
+        <img id="item-one" src="../assets/00000 Image.jpg" />
       </div>
-      <div 
-        class="item" 
-        v-for="item in visibleItems" 
-        :key="item.url"
-      >
-        <Item 
-          :item="item" 
-          @media-load="handleMediaLoad"
-          @media-error="handleMediaError" 
-        />
+      <div class="item" v-for="item in visibleItems" :key="item.url">
+        <Item :item="item" />
       </div>
     </div>
-    <div 
-      v-if="hasMoreItems" 
-      ref="loadingTrigger" 
-      class="loading-more"
-      :class="{ 'is-loading': isLoading }"
-    >
-      {{ isLoading ? 'Loading...' : '' }}
+    <!-- Modified loading indicator with ref -->
+    <div v-if="hasMoreItems" ref="loadingTrigger" class="loading-more">
+      {{ isLoading ? '' : '' }}
     </div>
   </div>
 </template>
@@ -38,22 +21,18 @@ import Item from "./Item";
 import Header from "./Header";
 
 const ITEMS_PER_PAGE = 13;
-const LOAD_RETRY_DELAY = 1000;
-const MAX_RETRIES = 3;
 
 export default {
   name: "Home",
   data() {
     return {
-      allItems: [],
-      visibleItems: [],
+      allItems: [], // All items from server
+      visibleItems: [], // Currently visible items
       currentPage: 0,
       isLoading: false,
       videosOn: true,
       removedItems: [],
       observer: null,
-      loadingStates: new Map(), // Track loading state of each item
-      retryCount: 0,
     };
   },
 
@@ -61,87 +40,57 @@ export default {
     Item,
     Header,
   },
-
   methods: {
-    handleImageError(event) {
-      const img = event.target;
-      if (this.retryCount < MAX_RETRIES) {
-        setTimeout(() => {
-          img.setAttribute('src', img.getAttribute('src') + '?retry=' + Date.now());
-          this.retryCount++;
-        }, LOAD_RETRY_DELAY);
-      }
-    },
-
-    handleMediaLoad(itemUrl) {
-      this.loadingStates.set(itemUrl, 'loaded');
-    },
-
-    handleMediaError(itemUrl) {
-      const currentRetries = this.loadingStates.get(itemUrl)?.retries || 0;
-      if (currentRetries < MAX_RETRIES) {
-        this.loadingStates.set(itemUrl, { 
-          status: 'retrying',
-          retries: currentRetries + 1 
-        });
-        // Trigger a re-render of the specific item
-        const itemIndex = this.visibleItems.findIndex(item => item.url === itemUrl);
-        if (itemIndex !== -1) {
-          const item = { ...this.visibleItems[itemIndex] };
-          // Add cache-busting parameter to URL
-          item.url = item.url + '?retry=' + Date.now();
-          this.$set(this.visibleItems, itemIndex, item);
-        }
-      } else {
-        this.loadingStates.set(itemUrl, 'error');
-      }
-    },
-
     removeVideos() {
-      if (!this.$isMobile) return;
+      for (var i = this.allItems.length - 1; i >= 0; --i) {
+        this.backup = this.allItems;
+        if (this.allItems[i].contentType == "video/mp4") {
+          this.removedItems = this.allItems.splice(i, 1);
+          // this.items.splice(i, 1);
+          this.videosOn = false;
+        }
+      }
+    },
+    shuffleItems() {
+      const items = [...this.allItems];
+      var m = items.length,
+        t,
+        i;
+      while (m) {
+        i = Math.floor(Math.random() * m--);
+        t = items[m];
+        items[m] = items[i];
+        items[i] = t;
+      }
+      this.allItems = items;
       
-      this.backup = [...this.allItems];
-      this.allItems = this.allItems.filter(item => item.contentType !== "video/mp4");
-      this.videosOn = false;
-      
-      // Reset visible items
+      // Reset pagination when shuffling
       this.currentPage = 1;
       this.visibleItems = this.allItems.slice(0, ITEMS_PER_PAGE);
     },
-
-    async loadMoreItems() {
+    loadMoreItems() {
       if (this.isLoading || !this.hasMoreItems) return;
       
-      try {
-        this.isLoading = true;
-        
+      this.isLoading = true;
+      
+      setTimeout(() => {
         const start = this.currentPage * ITEMS_PER_PAGE;
         const end = start + ITEMS_PER_PAGE;
         const newItems = this.allItems.slice(start, end);
         
-        // Filter out duplicates
+        // Filter out any duplicates
         const uniqueNewItems = newItems.filter(newItem => 
           !this.visibleItems.some(visibleItem => visibleItem.url === newItem.url)
         );
         
         if (uniqueNewItems.length) {
-          // Initialize loading states for new items
-          uniqueNewItems.forEach(item => {
-            if (!this.loadingStates.has(item.url)) {
-              this.loadingStates.set(item.url, 'loading');
-            }
-          });
-          
           this.visibleItems = [...this.visibleItems, ...uniqueNewItems];
           this.currentPage++;
         }
-      } catch (error) {
-        console.error('Error loading more items:', error);
-      } finally {
+        
         this.isLoading = false;
-      }
+      }, 500);
     },
-
     setupIntersectionObserver() {
       if (this.observer) {
         this.observer.disconnect();
@@ -154,53 +103,42 @@ export default {
       };
 
       this.observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && !this.isLoading) {
-          requestAnimationFrame(() => this.loadMoreItems());
+        if (entries[0].isIntersecting) {
+          this.loadMoreItems();
         }
       }, options);
 
+      // Use $refs to observe the loading trigger
       if (this.$refs.loadingTrigger) {
         this.observer.observe(this.$refs.loadingTrigger);
       }
-    },
-
-    shuffleArray(array) {
-      const shuffled = [...array];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-      return shuffled;
-    },
-
-    shuffleItems() {
-      this.allItems = this.shuffleArray([...this.allItems]);
-      // Reset pagination when shuffling
-      this.currentPage = 1;
-      this.visibleItems = this.allItems.slice(0, ITEMS_PER_PAGE);
     }
   },
 
   async beforeMount() {
-    try {
-      const response = await fetch("https://supermirage.pics/api/files");
-      if (!response.ok) throw new Error('Failed to fetch items');
-      
-      const dataFromServer = await response.json();
-      this.allItems = this.shuffleArray([...dataFromServer]);
-      this.visibleItems = this.allItems.slice(0, ITEMS_PER_PAGE);
-      this.currentPage = 1;
+    const responseFromServer = await fetch("https://supermirage.pics/api/files");
+    const dataFromServer = await responseFromServer.json();
+    this.allItems = dataFromServer;
+    
+    // Initial shuffle
+    const items = [...dataFromServer];
+    var m = items.length,
+      t,
+      i;
+    while (m) {
+      i = Math.floor(Math.random() * m--);
+      t = items[m];
+      items[m] = items[i];
+      items[i] = t;
+    }
+    this.allItems = items;
+    
+    // Set initial visible items
+    this.visibleItems = this.allItems.slice(0, ITEMS_PER_PAGE);
+    this.currentPage = 1;
 
-      // Initialize loading states
-      this.visibleItems.forEach(item => {
-        this.loadingStates.set(item.url, 'loading');
-      });
-
-      if (this.$isMobile) {
-        this.removeVideos();
-      }
-    } catch (error) {
-      console.error('Error fetching items:', error);
+    if (this.$isMobile) {
+      this.removeVideos();
     }
   },
 
@@ -218,11 +156,15 @@ export default {
 
   computed: {
     hasMoreItems() {
-      return this.visibleItems.length < this.allItems.length;
+      // Check if we have more unique items to load
+      const currentCount = this.visibleItems.length;
+      const totalCount = this.allItems.length;
+      return currentCount < totalCount;
     }
   },
 
   watch: {
+    // Re-setup observer when loading trigger becomes visible
     hasMoreItems: {
       handler(newVal) {
         if (newVal) {
@@ -343,20 +285,5 @@ export default {
   text-align: center;
   padding: 2rem;
   font-family: "Telegraf";
-  min-height: 60px;
-  
-  &.is-loading {
-    opacity: 0.7;
-  }
-}
-
-.item {
-  &.loading {
-    background: rgba(0, 0, 0, 0.1);
-  }
-  
-  &.error {
-    background: rgba(255, 0, 0, 0.1);
-  }
 }
 </style>
