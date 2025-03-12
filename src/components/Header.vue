@@ -8,7 +8,7 @@
         <!-- <br /> -->
       </div>
     </div>
-    <div class="social" v-if="!$isMobile" v-show="!showInfo">
+    <div class="social" v-show="!showInfo">
       <a href="https://twitter.com/mmckain_" target="_blank">
         <img src="../assets/icons/twitter.svg" />
       </a>
