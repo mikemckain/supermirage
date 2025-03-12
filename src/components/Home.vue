@@ -6,7 +6,7 @@
         <img id="item-one" src="../assets/00000 Image.jpg" />
       </div>
       <div class="item" v-for="item in visibleItems" :key="item.url">
-        <Item :item="item" />
+        <Item :item="item" @image-failed="reportFailedImage" />
       </div>
     </div>
     <!-- Modified loading indicator with ref -->
@@ -41,20 +41,115 @@ export default {
     Header,
   },
   methods: {
-    // Modified to optimize rather than remove videos on mobile
+    // New debug helper to track failed images
+    reportFailedImage(item) {
+      if (!this.$isMobile) return;
+      
+      // Add to failed items list
+      if (!this.failedItems.some(failedItem => failedItem.url === item.url)) {
+        this.failedItems.push(item);
+        
+        // Log to console in debug mode
+        if (typeof window !== 'undefined' && window.location.search.includes('debug=true')) {
+          console.warn('Image failed to load:', item.url);
+          
+          // Every 5 failures, report a summary
+          if (this.failedItems.length % 5 === 0) {
+            console.error('Failed images summary:', this.failedItems.map(i => ({
+              url: i.url,
+              contentType: i.contentType,
+              extension: i.url.split('.').pop().toLowerCase()
+            })));
+          }
+        }
+      }
+    },
+    
+    // Modified to remove videos on mobile
     optimizeForMobile() {
       if (!this.$isMobile) return;
       
-      // Instead of removing videos, we'll optimize loading
-      // by reducing the initial load count on mobile
-      const optimizedItems = [...this.allItems];
+      // Filter out videos on mobile devices
+      const optimizedItems = this.allItems.filter(item => {
+        // Check if item is a video based on URL extension or content type
+        const url = item.url || '';
+        const extension = url.split('.').pop().toLowerCase();
+        const isVideo = 
+          extension === 'mp4' || 
+          extension === 'webm' || 
+          (item.contentType && (
+            item.contentType.includes('video/mp4') || 
+            item.contentType.includes('video/webm')
+          ));
+        
+        // Keep only non-video items
+        return !isVideo;
+      });
       
-      // Filter out extremely large videos if needed based on contentType or size
+      console.log(`Filtered out ${this.allItems.length - optimizedItems.length} videos for mobile`);
+      
+      // Replace allItems with filtered list
       this.allItems = optimizedItems;
       
       // Adjust items per page for mobile
       this.visibleItems = this.allItems.slice(0, 8); // Fewer items initially for mobile
+      
+      // Prevalidate image URLs for mobile
+      this.prevalidateNextBatchOfImages();
     },
+    
+    // Prevalidate image URLs to ensure they're mobile-compatible
+    prevalidateNextBatchOfImages() {
+      if (!this.$isMobile) return;
+      
+      // Look ahead at the next batch of images that will be loaded
+      const start = this.currentPage * 8;
+      const end = start + 16; // Look ahead 2 pages
+      const nextBatch = this.allItems.slice(start, end);
+      
+      // For each item, preload metadata to check if it's likely to work on mobile
+      nextBatch.forEach(item => {
+        if (!item.url) return;
+        
+        // Check image extension
+        const ext = item.url.split('.').pop().toLowerCase();
+        const isImage = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext);
+        
+        if (isImage) {
+          // Create an image object to test loading
+          const img = new Image();
+          
+          // Set a timeout to catch stalled loads
+          const timeout = setTimeout(() => {
+            console.warn('Image prevalidation timeout:', item.url);
+            // Mark as potentially problematic
+            item._mobileCompatibilityIssue = 'timeout';
+          }, 5000);
+          
+          img.onload = () => {
+            clearTimeout(timeout);
+            // Check if image is extremely large
+            if (img.width > 4000 || img.height > 4000) {
+              console.warn('Very large image detected, may cause issues on mobile:', item.url);
+              item._mobileCompatibilityIssue = 'size';
+            } else {
+              // Image seems fine
+              item._mobileCompatibilityIssue = false;
+            }
+          };
+          
+          img.onerror = () => {
+            clearTimeout(timeout);
+            console.warn('Image prevalidation failed:', item.url);
+            item._mobileCompatibilityIssue = 'load';
+          };
+          
+          // Start loading the image
+          img.src = item.url;
+        }
+      });
+    },
+    
     shuffleItems() {
       const items = [...this.allItems];
       var m = items.length,
@@ -71,6 +166,11 @@ export default {
       // Reset pagination when shuffling
       this.currentPage = 1;
       this.visibleItems = this.allItems.slice(0, this.$isMobile ? 8 : ITEMS_PER_PAGE);
+      
+      // Prevalidate next batch after shuffle
+      if (this.$isMobile) {
+        this.prevalidateNextBatchOfImages();
+      }
     },
     loadMoreItems() {
       if (this.isLoading || !this.hasMoreItems) return;
@@ -90,6 +190,11 @@ export default {
         if (uniqueNewItems.length) {
           this.visibleItems = [...this.visibleItems, ...uniqueNewItems];
           this.currentPage++;
+          
+          // Prevalidate next batch after loading more
+          if (this.$isMobile) {
+            this.prevalidateNextBatchOfImages();
+          }
         }
         
         this.isLoading = false;
@@ -128,10 +233,48 @@ export default {
       }
       
       const dataFromServer = await responseFromServer.json();
-      this.allItems = dataFromServer;
+      
+      // Process items to add mobile-specific metadata
+      const processedItems = dataFromServer.map(item => {
+        // Add mobile-specific checks
+        if (this.$isMobile) {
+          // Identify potential problematic formats
+          const url = item.url || '';
+          const extension = url.split('.').pop().toLowerCase();
+          
+          // SPECIFIC CHECK FOR BACKBLAZE WEBP IMAGES (known to fail on mobile)
+          if (url.includes('f004.backblazeb2.com') && extension === 'webp') {
+            item._potentialMobileIssue = true;
+            item._mobileCompatibilityIssue = 'backblaze-webp';
+            
+            // Create an alternate URL if possible (try jpg version)
+            if (!item._alternateUrl) {
+              item._alternateUrl = url.replace('.webp', '.jpg');
+            }
+          } else {
+            // Check for very large file indicators in URL
+            const potentiallyLarge = 
+              url.includes('original') || 
+              url.includes('full') || 
+              url.includes('large');
+              
+            // Check for uncommon formats that might have issues on mobile
+            const uncommonFormat = 
+              !['jpg', 'jpeg', 'png', 'webp', 'gif', 'mp4'].includes(extension);
+              
+            // Flag items that might be problematic on mobile
+            if (potentiallyLarge || uncommonFormat) {
+              item._potentialMobileIssue = true;
+            }
+          }
+        }
+        return item;
+      });
+      
+      this.allItems = processedItems;
       
       // Initial shuffle
-      const items = [...dataFromServer];
+      const items = [...processedItems];
       var m = items.length,
         t,
         i;
@@ -142,6 +285,16 @@ export default {
         items[i] = t;
       }
       this.allItems = items;
+      
+      // For mobile, move potentially problematic items further down the list
+      if (this.$isMobile) {
+        // Reorder so potentially problematic items appear later
+        this.allItems.sort((a, b) => {
+          if (a._potentialMobileIssue && !b._potentialMobileIssue) return 1;
+          if (!a._potentialMobileIssue && b._potentialMobileIssue) return -1;
+          return 0;
+        });
+      }
       
       // Set initial visible items - fewer for mobile
       const initialCount = this.$isMobile ? 8 : ITEMS_PER_PAGE;
@@ -158,6 +311,16 @@ export default {
   mounted() {
     this.$nextTick(() => {
       this.setupIntersectionObserver();
+      
+      // Add mobile debugging console if debug parameter is present
+      if (this.$isMobile && window.location.search.includes('debug=true')) {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/eruda';
+        document.body.appendChild(script);
+        script.onload = function() {
+          window.eruda.init();
+        };
+      }
     });
   },
 

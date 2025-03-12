@@ -8,7 +8,7 @@
         <!-- <br /> -->
       </div>
     </div>
-    <div class="social" v-if="!$isMobile" v-show="!showInfo">
+    <div class="social" v-show="!showInfo">
       <a href="https://twitter.com/mmckain_" target="_blank">
         <img src="../assets/icons/twitter.svg" loading="lazy" />
       </a>
@@ -270,9 +270,24 @@ export default {
 
   .control {
     opacity: 1;
-
     top: 0vw;
     right: 0vw;
+  }
+  
+  .social {
+    flex-direction: row;
+    margin-top: 5px;
+    
+    a {
+      margin-right: 5px;
+      opacity: 1;
+    }
+    
+    img {
+      width: 12px;
+      height: 12px;
+      padding: 5px;
+    }
   }
 }
 </style>
